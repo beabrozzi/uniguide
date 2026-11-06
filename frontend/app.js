@@ -1,7 +1,13 @@
 /* ───────────────────────── RULES ENGINE ─────────────────────────
    Each rule: when(answers) → {id, tier, why}. Tier: now | week | keep. Score orders within tier. */
+// Food allergies and preferences (older saved answers used a single "diet" list)
+const ALLERGY_LBL={nuts:"nut allergy",gluten:"coeliac disease",dairy:"dairy allergy or intolerance",otherallergy:"food allergy"};
+function dietOf(a){ return [...(a.allergy||[]),...(a.dietpref||[]),...(a.diet||[])].filter(d=>d!=="none"); }
+
 function plan(a){
-  const out=[]; const add=(id,tier,why,score=50)=>{ if(!out.find(o=>o.id===id)) out.push({id,tier,why,score}); };
+  const out=[]; const rank={now:0,week:1,keep:2};
+  // Add a service. If it's already in the plan, keep the more urgent reason.
+  const add=(id,tier,why,score=50)=>{ const o=out.find(o=>o.id===id); if(!o) out.push({id,tier,why,score}); else if(rank[tier]<rank[o.tier]) Object.assign(o,{tier,why,score}); };
   const has=(k,v)=>(a[k]||[]).includes(v);
   const intl = a.origin!=="home";
   const halls = a.living==="halls_cat"||a.living==="halls_self"||a.living==="pbsa";
@@ -11,19 +17,19 @@ function plan(a){
 
   // Mental health
   if(a.mood==="crisis"){ add("samaritans","now","You told us you're not safe right now",100); add("shout","now","If talking feels too hard, you can text",99); add(U.nation==="N"?"lifeline":"nhs111mh","now",U.nation==="N"?"24/7 crisis support where you study":"Urgent NHS mental health help",98); add("stayalive","week","A safety plan helps you through the next tough moment",80); }
-  if(a.mood==="low"){ add("counselling","now","You said you're struggling to cope. Triage happens within 24 hours",95); add(busy?"nightline":"ucl247", "now", busy?(a.schedule==="packed"?"Your days are packed, and Nightline is open overnight, 6pm–8am":"You're mostly free in the evenings, and Nightline runs 6pm–8am"):"Someone to talk to today, 24/7", 90); add("samaritans","keep","Keep this number for a really bad moment",60); }
-  if(a.mood==="stressed"){ add("ucl247","week","For stress and anxiety, at any hour"+(intl?", and in 35+ languages":""),70); add("studentminds","keep","Self-help tools for stress and anxiety",40); if(busy) add("nightline","keep","Open the hours you're actually free",35); }
-  if(a.mood==="good"){ add("ucl247","keep","Save it now so it's there if you ever need it",20); }
+  if(a.mood==="low"){ add("counselling","now","You said you're struggling to cope. Triage happens within 24 hours",95); add(busy?"nightline":"ucl247", "now", busy?(a.schedule==="packed"?"Your days are packed, and Nightline is open overnight"+(U.london?", 6pm–8am":""):"You're mostly free in the evenings, and Nightline runs overnight"+(U.london?", 6pm–8am":"")):(U.ucl?"Someone to talk to today, 24/7":"Someone to talk to today"), 90); add("samaritans","keep","Keep this number for a really bad moment",60); }
+  if(a.mood==="stressed"){ add("ucl247","week",U.ucl?"For stress and anxiety, at any hour"+(intl?", and in 35+ languages":""):"For stress and anxiety, when you need someone to talk to",70); add("studentminds","keep","Self-help tools for stress and anxiety",40); if(busy) add("nightline","keep","Open the hours you're actually free",35); }
+  if(a.mood==="good"||a.mood==="prefer"){ add("ucl247","keep","Save it now so it's there if you ever need it",20); }
   if(a.mhcond==="yes"){ add("sswsmh","week","Registering a condition gets support set up before deadlines hit",75); if(a.mood!=="low"&&a.mood!=="crisis") add("counselling","keep","Ongoing support alongside your GP",45); }
   if(a.mhcond==="unsure"&&(a.mood==="low"||a.mood==="stressed")) add("sswsmh","keep","An adviser can help, even without a diagnosis",40);
 
   // Physical health
   if(a.gp!=="yes"){
     const id = (U.ucl && a.area==="central")?"ridgmount":(U.map&&U.map.unigp?"unigp":"findgp");
-    const why = (a.mood==="low"||a.mood==="crisis")?"You need a GP to access UCL counselling, so do this first":(a.gp==="unsure"?"A GP back home won't cover you where you study":"You don't have a GP where you study yet");
+    const why = a.gp==="home"?"You said you're still registered with your GP at home":a.gp==="unsure"?"You weren't sure if you're registered with a GP near university":"You said you're not registered with a GP near university";
     add(id,"now",why,92);
     if(intl) add("gpintl","week","The NHS works differently from most countries",65);
-    add("vaccines","week","Freshers' weeks are when meningitis and mumps spread",55);
+    add("vaccines","week","Starting university is a good time to check your vaccinations",55);
   }
   if(has("conditions","meds")) add("meds","week","You take regular medication",68);
   if(has("conditions","disability")||has("conditions","longterm")||has("conditions","neuro")){
@@ -34,15 +40,17 @@ function plan(a){
   }
 
   // Food
-  const dietLbl = (a.diet||[]).filter(d=>!["none","veg","halal"].includes(d)).map(d=>({nuts:"nut allergy",gluten:"coeliac disease",dairy:"dairy-free diet"}[d]));
+  const diet = dietOf(a);
+  const dietLbl = diet.map(d=>ALLERGY_LBL[d]).filter(Boolean);
   if(dietLbl.length){
     const d = dietLbl.join(" & ");
     if(a.living==="halls_cat") add("allergycat","now","You're in catered halls with "+d,88);
     add("allergyout","keep","Your rights when eating on campus and out",42);
   }
-  if((a.diet||[]).includes("halal")&&a.living==="halls_cat") add("allergycat","week","Let catering know your dietary requirements",58);
-  if(has("diet","gluten")) add("coeliac","keep","Built for coeliac students",38);
-  if(a.food<=30 || a.money<=200){ add("pantry", a.food<=20||a.money<=100?"now":"week", `£${a.food}/week for food is tight${U.london?" in London":""}`, 72); add("tgtg","week","Cuts food costs without cutting meals",52); }
+  if((diet.includes("halal")||diet.includes("kosher"))&&a.living==="halls_cat") add("allergycat","week","Let catering know your dietary requirements",58);
+  if(diet.includes("gluten")) add("coeliac","keep","Built for coeliac students",38);
+  const foodTight = !a.foodUnknown && a.food<=30;
+  if(foodTight || a.money<=200){ add("pantry", (!a.foodUnknown&&a.food<=20)||a.money<=100?"now":"week", foodTight?`£${a.food}/week for food is tight${U.london?" in London":""}`:`£${a.money}/month for living costs is tight${U.london?" in London":""}`, 72); add("tgtg","week","Cuts food costs without cutting meals",52); }
   if(a.living!=="halls_cat"&&a.living!=="family") add("batch","keep","Matched to your budget and schedule",36);
   if(a.living==="halls_cat") add("catered","keep","You're already paying for most meals",18);
 
@@ -51,7 +59,7 @@ function plan(a){
   if(has("moneyissue","unexpected")){ add("faf","week","For unexpected costs or a change in circumstances",76); add("sarah","keep","A back-up if UCL's fund can't help",44); }
   if(has("moneyissue","debt")) add("debt","week","Free advice before debt grows",74);
   if(a.money<=150 && !has("moneyissue","unexpected")) add("faf","week",`£${a.money}/month after rent is very tight`,70);
-  if(has("moneyissue","work")) add("work","week","You're looking for work",56);
+  if(has("moneyissue","work")){ add("work","week","You're looking for work",56); add("careersvc","week","They advertise student jobs and can check your CV",55); }
   if(U.london) add("oyster","keep","Travel is a big cost in London",30); else add("railcard","keep","Cheaper trips home and around the country",30);
   if(intl) add("bank","week","You'll need a UK account for rent and wages",54);
   if(a.money<=300||has("moneyissue","debt")) add("col","keep","Everything else UCL offers for money",28);
@@ -69,10 +77,10 @@ function plan(a){
   if(has("circ","first")) add("tutor","week","First in your family? Nobody at home has done this before, so your tutor can explain how things work",62);
 
   // Worries
-  if(has("worries","unsafe")) add("reportsupport","now","You mentioned harassment or feeling unsafe",96);
-  if(has("worries","grief")){ add("ucl247","now","Bereavement is one of the things they support",88); add("ec","week","Grief can affect deadlines, and you can get mitigation",70); if(a.mood!=="good") add("counselling","week","Support through grief",68); }
-  if(has("worries","homesick")){ add("ucl247","week","They support homesickness specifically, any time of day",62); if(intl) add("intl","week","Homesickness is very common for international students",64); }
-  if(has("worries","relationships")) add("ucl247","week","Relationship and family worries are part of what they support",60);
+  if(has("worries","unsafe")){ add("reportsupport","now","You mentioned harassment or feeling unsafe",96); add("ucl247","week",U.ucl?"Talk it through with someone, at any hour":"Talk it through with someone",72); add("victimsupport","week","Independent support, whether or not you report it",66); }
+  if(has("worries","grief")){ add("ucl247","now",U.ucl?"Bereavement is one of the things they support":"Support for coping with bereavement",88); add("ec","week","Grief can affect deadlines, and you can get mitigation",70); if(a.mood!=="good") add("counselling","week","Support through grief",68); add("cruse","week","Specialist bereavement support, free",64); }
+  if(has("worries","homesick")){ add("ucl247","week",U.ucl?"They support homesickness specifically, any time of day":"Support with homesickness",62); if(intl) add("intl","week","Homesickness is very common for international students",64); add("societies","week","Meeting people with shared interests helps homesickness",58); if(uniHalls) add("sra","week","Your hall team can help you settle in and meet people",57); }
+  if(has("worries","relationships")) add("ucl247","week",U.ucl?"Relationship and family worries are part of what they support":"Support with relationship and family worries",60);
   if(has("worries","academic")) add("tutor","week","You're feeling pressure from your course",63);
 
   // Home & study
@@ -86,10 +94,10 @@ function plan(a){
   if(has("identity","faith")) add("chaplaincy","keep","You asked about faith support",38);
 
   // Careers & opportunities
-  if(has("career","parttime")) add("work","week","You're looking for a part-time job",56);
+  if(has("career","parttime")){ add("work","week","You're looking for a part-time job",56); add("careersvc","week","They advertise student jobs and can check your CV",55); }
   if(has("career","internship")){ add("internships","week","Many internship deadlines fall in the autumn, so start early",64); add("careersvc","week","They can check your CV and applications before you send them",58); }
   if(has("career","volunteer")) add("volunteer","week","You're interested in volunteering",50);
-  if(has("career","unsure")) add("careersvc","week","Not sure what you want to do yet? That's exactly what careers advisers help with",54);
+  if(has("career","unsure")) add("careersvc","week","Exploring your options? That's exactly what careers advisers help with",54);
   if(has("circ","first")) add("careersvc","keep","First in your family? Careers advisers can explain internships and graduate schemes",34);
   if(!out.some(o=>R[o.id].pillar==="career")) add("careersvc","keep","Free while you're a student, and worth knowing about early",12);
 
@@ -136,8 +144,8 @@ function linkFor(r,a){
 }
 
 function fill(text,a){
-  const dietMap={nuts:"nut allergy",gluten:"coeliac disease",dairy:"dairy-free diet"};
-  const diet=(a.diet||[]).map(d=>dietMap[d]).filter(Boolean).join(" & ")||"dietary needs";
+  const diet=dietOf(a).map(d=>ALLERGY_LBL[d]).filter(Boolean).join(" & ")||"dietary needs";
+  if(a.foodUnknown) text=text.replace("your £{food}/week","your weekly food budget").replace("£{food}/week","your weekly food budget");
   const schedMap={day:"flexible",evenings:"evenings-only",packed:"packed"};
   const workRule = a.origin==="home" ? "As a home student there's no legal limit on hours, but keep term-time work manageable so your studies don't suffer." : "On a Student visa for a degree you can usually work up to 20 hours a week in term time and full-time in vacations. Check your visa conditions first.";
   const schedNote = a.schedule==="packed" ? "With a packed timetable, choose one that meets weekly at a fixed time, so it's easy to protect." : a.schedule==="evenings" ? "Most societies meet in the evenings and at weekends, which suits your schedule." : "";
@@ -159,20 +167,23 @@ function defaults(){ const a={}; STEPS.forEach(s=>s.qs.forEach(q=>{ if(q.type===
 function home(){
   app.innerHTML=`
   <div class="card">
-    <h1>Your first term, sorted.</h1>
-    <p class="sub">The support you need at UCL already exists. It's just spread across dozens of websites, phone lines and charities. UniGuide asks a few questions and shows you what matters for you, in order.</p>
+    <h1>Your university experience, your personalised guide.</h1>
+    <p class="sub">Answer a few questions to discover relevant university, NHS and charity services, organised into a personalised action plan.</p>
     <div class="how">
-      <div><b>1 · Tell us</b>Health, food, money, housing, studies, social life: 7 short screens.</div>
-      <div><b>2 · We match</b>Your answers are checked against UCL, NHS and charity services.</div>
-      <div><b>3 · You act</b>A ranked plan: what to do today, this week, and what to keep handy.</div>
+      <div><b>01 · Tell us about you</b>Your needs and university</div>
+      <div><b>02 · We find your support</b>Relevant services, prioritised</div>
+      <div><b>03 · Get your plan</b>Clear steps to follow</div>
     </div>
-    <div class="or">try it as a sample student</div>
-    <div class="personas">${PERSONAS.map((p,i)=>`<button class="persona" data-p="${i}"><b>${p.name}</b><small>${p.desc}</small></button>`).join("")}</div>
-    <div class="or">or</div>
-    <button class="btn btn-p" id="start" style="width:100%">Start with my own answers →</button>
-    <p class="foot">Prototype by Beatrice Brozzi & Mélusine Jurd de Girancourt. Not an official university service. Service details checked against UCL, Students' Union UCL, NHS and charity websites in November 2026. Nothing you enter leaves your browser.</p>
+    <button class="btn btn-p" id="start" style="width:100%;margin-top:20px">Create my personalised plan →</button>
+    <div class="explore">Just exploring? <button class="linkbtn" id="exToggle" aria-expanded="${state.showEx?"true":"false"}">View an example plan →</button></div>
+    ${state.showEx?`<div class="examples">
+      <p class="hint">Pick an example student to see the plan UniGuide would build for them.</p>
+      <div class="personas">${PERSONAS.map((p,i)=>`<button class="persona" data-p="${i}"><b>${esc(p.name.split(",")[0])}</b><small>${esc(uniInfo(p.a).ucl?"UCL":p.a.uni)}</small><span class="ptags">${(p.tags||[]).map(([c,l])=>`<span class="tag t-${c}">${l}</span>`).join("")}</span></button>`).join("")}</div>
+    </div>`:""}
+    <p class="foot">You can explore without an account. If you choose to save your plan, we'll ask for your consent first. <a href="privacy.html" target="_blank" rel="noopener">Privacy notice</a></p>
   </div>`;
   app.querySelectorAll(".persona").forEach(b=>b.onclick=()=>{ state.a={...defaults(),...PERSONAS[+b.dataset.p].a}; state.done=new Set(); state.persona=PERSONAS[+b.dataset.p].name; state.view="results"; render(); });
+  document.getElementById("exToggle").onclick=()=>{ state.showEx=!state.showEx; home(); };
   document.getElementById("start").onclick=()=>{ state={view:"form",step:0,a:defaults()}; render(); };
 }
 
@@ -186,40 +197,63 @@ function form(){
     <div class="progress">${STEPS.map((_,i)=>`<i class="${i<=state.step?"on":""}"></i>`).join("")}</div>
     <div class="steplbl">Step ${state.step+1} of ${STEPS.length}</div>
     <h1>${s.title}</h1>
-    ${s.qs.filter(visible).map(q=>`<div class="q">
+    <p class="reqnote">All questions are required unless marked optional.</p>
+    ${s.qs.filter(visible).map(q=>{ const miss=state.showErr&&!answered(q); return `<div class="q${miss?" missing":""}" id="q-${q.id}">
       <span class="qt">${q.label} ${q.hint?`<span class="hint">· ${q.hint}</span>`:""}</span>
       ${q.type==="uni"
         ? `<select id="unisel" style="width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:#fff;font-weight:600"><option value="">Choose your university…</option>${UNIS.map(u=>`<option value="${esc(u[0])}" ${state.a.uni===u[0]?"selected":""}>${esc(u[0])}${(u[0]===UCL_NAME||UNI_MAP[u[0]])?"  ✓":""}</option>`).join("")}</select>
-           <p class="hint" style="margin-top:6px;font-size:.8rem;color:var(--muted)">${state.a.uni? (uniInfo(state.a).ucl? "✓ Fully mapped: you'll see UCL's own services." : uniInfo(state.a).map ? "✓ Mapped: you'll see "+esc(state.a.uni)+"'s own core services." : "We've mapped UCL, King's, LSE and Imperial so far. For "+esc(state.a.uni)+" you'll get national services, plus what to ask your university for and where to find it.") : "Covers every UK university. UCL, King's, LSE and Imperial are mapped so far."}</p>`
+           <p class="hint" style="margin-top:6px;font-size:.8rem;color:var(--muted)">${state.a.uni? (uniInfo(state.a).ucl? "✓ Fully mapped: you'll see UCL's own services." : uniInfo(state.a).map ? "✓ Mapped: you'll see "+esc(state.a.uni)+"'s own core services." : "You'll see national services, plus how to find "+esc(state.a.uni)+"'s own support.") : "Covers every UK university. UCL, King's, LSE and Imperial are mapped so far."}</p>`
         : q.type==="range"
-        ? `<div class="range"><input type="range" id="r-${q.id}" min="${q.min}" max="${q.max}" step="${q.step}" value="${state.a[q.id]}"><span class="rv" id="v-${q.id}">${q.unit}${state.a[q.id]}${q.id==="money"&&state.a[q.id]>=q.max?"+":""} <small style="font-weight:600;color:var(--muted)">${q.suffix}</small></span></div>`
-        : `<div class="chips">${q.opts.map(([v,l])=>{ const sel=q.type==="one"?state.a[q.id]===v:(state.a[q.id]||[]).includes(v); return `<span class="chip ${sel?"sel":""}" data-q="${q.id}" data-v="${v}" data-t="${q.type}" role="button" tabindex="0">${l}</span>`;}).join("")}</div>`}
-    </div>`).join("")}
+        ? `<div class="range${q.unknown&&state.a[q.unknown]?" off":""}"><input type="range" id="r-${q.id}" min="${q.min}" max="${q.max}" step="${q.step}" value="${state.a[q.id]}" ${q.unknown&&state.a[q.unknown]?"disabled":""}><span class="rv" id="v-${q.id}">${q.unit}${state.a[q.id]}${q.id==="money"&&state.a[q.id]>=q.max?"+":""} <small style="font-weight:600;color:var(--muted)">${q.suffix}</small></span></div>
+           ${q.unknown?`<div class="chips" style="margin-top:8px"><span class="chip ${state.a[q.unknown]?"sel":""}" data-unk="${q.unknown}" role="button" tabindex="0" aria-pressed="${!!state.a[q.unknown]}">I'm not sure yet</span></div>`:""}`
+        : `<div class="chips">${q.opts.map(([v,l])=>{ const sel=q.type==="one"?state.a[q.id]===v:(state.a[q.id]||[]).includes(v); return `<span class="chip ${sel?"sel":""}" data-q="${q.id}" data-v="${v}" data-t="${q.type}" role="button" tabindex="0" aria-pressed="${sel}">${l}</span>`;}).join("")}</div>`}
+      ${miss?`<div class="qerr" role="alert">Please choose an answer</div>`:""}
+      ${q.id==="mood"&&state.a.mood==="crisis"?`<div class="crisis-now" role="alert">
+        <h3>Need immediate support?</h3>
+        <p>If you're in immediate danger, call <a href="tel:999">999</a>. You can also contact <a href="tel:111">NHS 111</a> for urgent advice, Samaritans on <a href="tel:116123">116 123</a>, or text <a href="sms:85258?body=SHOUT">SHOUT to 85258</a> for confidential support.</p>
+        <p><b>You don't need to finish the questionnaire to access help.</b></p>
+        <button class="btn btn-danger" id="crisisGo" type="button">See urgent support now →</button>
+      </div>`:""}
+    </div>`; }).join("")}
+    <p class="privnote">🔒 Your answers are used to personalise your plan. You can explore without creating an account, and we'll always ask for your consent before saving anything.</p>
     <div class="nav">
       <button class="btn btn-g" id="back">← ${state.step===0?"Home":"Back"}</button>
-      <button class="btn btn-p" id="next" ${s.qs.every(answered)?"":"disabled"}>${state.step===STEPS.length-1?"Show my plan →":"Next →"}</button>
+      <button class="btn btn-p" id="next">${state.step===STEPS.length-1?"Show my plan →":"Next →"}</button>
     </div>
   </div>`;
-  app.querySelectorAll(".chip").forEach(c=>{ const go=()=>{
+  app.querySelectorAll(".chip[data-unk]").forEach(c=>{ const go=()=>{ state.a[c.dataset.unk]=!state.a[c.dataset.unk]; form(); }; c.onclick=go; c.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); go(); } }; });
+  app.querySelectorAll(".chip[data-q]").forEach(c=>{ const go=()=>{
     const {q,v,t}=c.dataset;
     if(t==="one") state.a[q]=v;
-    else { let arr=state.a[q]||[]; if(v==="none") arr=arr.includes("none")?[]:["none"]; else { arr=arr.filter(x=>x!=="none"); arr=arr.includes(v)?arr.filter(x=>x!==v):[...arr,v]; } state.a[q]=arr; }
-    if(q==="mood"&&v==="crisis"){ state.view="results"; state.persona=null; render(); return; }
+    else { const solo=["none","prefer"]; let arr=state.a[q]||[]; if(solo.includes(v)) arr=arr.includes(v)?[]:[v]; else { arr=arr.filter(x=>!solo.includes(x)); arr=arr.includes(v)?arr.filter(x=>x!==v):[...arr,v]; } state.a[q]=arr; }
     form(); };
     c.onclick=go; c.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); go(); } }; });
+  const cg=document.getElementById("crisisGo"); if(cg) cg.onclick=()=>{ state.view="results"; state.persona=null; render(); };
   const us=document.getElementById("unisel"); if(us) us.onchange=()=>{ state.a.uni=us.value; form(); };
   s.qs.filter(q=>q.type==="range"&&visible(q)).forEach(q=>{ const r=document.getElementById("r-"+q.id); r.oninput=()=>{ state.a[q.id]=+r.value; document.getElementById("v-"+q.id).innerHTML=`${q.unit}${r.value}${q.id==="money"&&+r.value>=q.max?"+":""} <small style="font-weight:600;color:var(--muted)">${q.suffix}</small>`; }; });
-  document.getElementById("back").onclick=()=>{ if(state.step===0){state.view="home";} else state.step--; render(); };
-  document.getElementById("next").onclick=()=>{ if(state.step===STEPS.length-1) {state.view="results"; state.persona=null;} else state.step++; render(); };
+  document.getElementById("back").onclick=()=>{ state.showErr=false; if(state.step===0){state.view="home";} else state.step--; render(); };
+  document.getElementById("next").onclick=()=>{
+    if(!s.qs.every(answered)){ state.showErr=true; form(); const first=s.qs.find(q=>!answered(q)); const el=first&&document.getElementById("q-"+first.id); if(el) el.scrollIntoView({behavior:"smooth",block:"center"}); return; }
+    state.showErr=false;
+    if(state.step===STEPS.length-1) {state.view="results"; state.persona=null;} else state.step++; render(); };
 }
 
 function results(keep){
   if(!state.done) state.done=new Set();
   const a=state.a; const p=plan(a);
   const tiers=[["now","Do today","Most urgent for your situation"],["week","This week","Set these up while things are calm"],["keep","Keep handy","For later, or if things change"]];
+  const mode=state.mode||"urgency";
+  // One group at a time: the selected urgency tier, or the selected area
+  const tierList=tiers.map(t=>t[0]).filter(t=>p.some(x=>x.tier===t));
+  const areaList=pillarOrder.filter(pl=>p.some(x=>R[x.id].pillar===pl));
+  const curTier=tierList.includes(state.tier)?state.tier:tierList[0];
+  const curArea=areaList.includes(state.area)?state.area:(areaList.find(pl=>p.some(x=>R[x.id].pillar===pl&&x.tier==="now"))||areaList[0]);
+  const nt=tierList[tierList.indexOf(curTier)+1], na=areaList[areaList.indexOf(curArea)+1];
+  const nextTier=nt?[nt,tiers.find(t=>t[0]===nt)[1],p.filter(x=>x.tier===nt).length]:null;
+  const nextArea=na?[na,pillarName[na],p.filter(x=>R[x.id].pillar===na).length]:null;
   const crisis=a.mood==="crisis";
   const lbl={living:{halls_cat:"Catered halls",halls_self:"Self-catered halls",pbsa:"Private student halls",private:"Private housing",family:"Living with family"},origin:{home:"UK student",eu:"EU student",intl:"International student"},living:{halls_cat:"Catered halls",halls_self:"Self-catered halls",private:"Private housing",family:"Living with family"},mood:{good:"Feeling OK",stressed:"Stressed",low:"Struggling",crisis:"In crisis"}};
-  const pills=[uniInfo(a).short,lbl.origin[a.origin],lbl.living[a.living],lbl.mood[a.mood],a.gp!=="yes"?"No local GP":null,`£${a.food}/wk food`,`£${a.money}/mo after rent`].filter(Boolean);
+  const pills=[uniInfo(a).short,lbl.origin[a.origin],lbl.living[a.living],lbl.mood[a.mood],a.gp!=="yes"?"No local GP":null,(a.foodUnknown?"Food budget not set":`£${a.food}/wk food`),`£${a.money}/mo after rent`].filter(Boolean);
   app.innerHTML=`
   ${crisis?`<div class="crisis">
     <h2>If you're in danger right now, call 999 or go to A&E</h2>
@@ -231,32 +265,38 @@ function results(keep){
       <div class="ln"><b>999</b>Emergency services</div>
     </div></div>`:""}
   <div class="card">
+    <button class="linkbtn backbtn" id="backTop">${state.persona?"← Back to examples":"← Change my answers"}</button>
     <h1>${state.persona?esc(state.persona.split(",")[0])+"'s plan":"Your plan"}</h1>
-    <p class="sub">${p.length} actions for ${esc(uniInfo(a).name)}, ranked for this situation. Each one shows why it's here.</p>
-    ${uniInfo(a).ucl?"":(uniInfo(a).map?`<div class="why" style="display:block;margin-top:12px">✓ ${esc(uniInfo(a).name)}'s core services are mapped: GP, counselling, out-of-hours support, hardship funds, advice and reporting. A few items are general guidance, with a link to find them.</div>`:`<div class="why" style="display:block;margin-top:12px">We've mapped UCL, King's, LSE and Imperial so far. For ${esc(uniInfo(a).name)} you're seeing national services, plus what to ask your university for, each with a link to find it.</div>`)}
+    <p class="sub"><b>${p.length} recommended actions</b>, with the most important ones first.</p>
     <div id="savebox"></div>
-    <div class="summary">${pills.map(x=>`<span class="pill">${esc(x)}</span>`).join("")}</div>
-    <div class="overview">${pillarOrder.map(pl=>{ const it=p.filter(x=>R[x.id].pillar===pl); const urgent=it.some(x=>x.tier==="now"); return `<button class="ov ${it.length?"":"zero"}" data-pl="${pl}"><span class="tag t-${pl}" style="white-space:nowrap">${pillarShort[pl]}</span><b>${it.length}</b><small>${urgent?'<span class="dot"></span>urgent':'actions'}</small></button>`; }).join("")}</div>
-    <div class="toggle"><button id="vu" class="${!state.mode||state.mode==="urgency"?"on":""}">By urgency</button><button id="va" class="${state.mode==="area"?"on":""}">By area</button><button id="vc" class="${state.mode==="check"?"on":""}">Checklist</button></div>
-    ${state.mode==="check" ? checklist(p,a) : (state.mode==="area"
-      ? pillarOrder.map(pl=>[pl,pillarName[pl],"",p.filter(x=>R[x.id].pillar===pl)])
-      : tiers.map(([t,h,s])=>[t,h,s,p.filter(x=>x.tier===t)])
-    ).map(([k,h,s,items])=>{ if(!items.length) return ""; return `
-      <div class="tier" id="sec-${k}"><div class="tier-h"><h2>${h}</h2><span class="count">${items.length}</span><span>${s}</span></div>
-      ${items.map(x=>card(x,a)).join("")}</div>`; }).join("")}
+    <div class="toggle"><button id="vu" class="${mode==="urgency"?"on":""}">By urgency</button><button id="va" class="${mode==="area"?"on":""}">By area</button><button id="vc" class="${mode==="check"?"on":""}">Checklist</button></div>
+    ${mode==="urgency"?`<div class="seg">${tiers.map(([t,h])=>{ const it=p.filter(x=>x.tier===t), n=it.length, d=it.filter(x=>state.done.has(x.id)).length; return `<button class="segb seg-${t} ${t===curTier?"on":""}" data-tier="${t}" ${n?"":"disabled"} aria-pressed="${t===curTier}">${h}<span>${d?d+"/":""}${n}</span></button>`; }).join("")}</div>`:""}
+    ${mode==="area"?`<div class="atabs">${areaList.map(pl=>{ const it=p.filter(x=>R[x.id].pillar===pl); const d=it.filter(x=>state.done.has(x.id)).length; return `<button class="atab ${pl===curArea?"on":""}" data-pl="${pl}" aria-pressed="${pl===curArea}"><span class="tag t-${pl}">${pillarShort[pl]}</span><span class="n">${d?d+"/":""}${it.length}</span></button>`; }).join("")}</div>`:""}
+    ${mode==="check" ? checklist(p,a) : (()=>{
+      const [k,h,sub,items] = mode==="area"
+        ? [curArea,pillarName[curArea],"",p.filter(x=>R[x.id].pillar===curArea)]
+        : (()=>{ const t=tiers.find(t=>t[0]===curTier); return [t[0],t[1],t[2],p.filter(x=>x.tier===curTier)]; })();
+      const next = mode==="area" ? nextArea : nextTier;
+      return `<div class="tier" id="sec-${k}"><div class="tier-h"><h2>${h}</h2><span class="count">${items.length}</span><span>${sub}</span></div>
+      ${items.map(x=>card(x,a)).join("")}
+      ${next?`<button class="btn btn-o nextgrp" id="nextGrp" data-k="${next[0]}">Next${mode==="area"?" area":""}: ${next[1]} (${next[2]}) →</button>`:""}</div>`; })()}
     <div class="actions">
       <button class="btn btn-p" id="copy">Copy my plan</button>
       ${state.persona?`<button class="btn btn-o" id="edit">Change ${esc(state.persona.split(",")[0])}'s answers</button>`:`<button class="btn btn-o" id="edit">Change my answers</button>`}
       <button class="btn btn-g" id="home">Try another student</button>
     </div>
-    <p class="foot">UniGuide prototype. Not an official UCL service and not medical advice. Details were checked against official pages in November 2026; always confirm on the linked page.</p>
+    <p class="foot">UniGuide prototype. Not an official university service and not medical advice. Details were checked against official pages in November 2026; always confirm on the linked page.</p>
   </div>`;
-  document.getElementById("vu").onclick=()=>{ state.mode="urgency"; results(); };
-  document.getElementById("va").onclick=()=>{ state.mode="area"; results(); };
-  document.getElementById("vc").onclick=()=>{ state.mode="check"; results(); };
-  app.querySelectorAll(".ov").forEach(o=>o.onclick=()=>{ state.mode="area"; results(); const el=document.getElementById("sec-"+o.dataset.pl); if(el) el.scrollIntoView({behavior:"smooth",block:"start"}); });
+  document.getElementById("vu").onclick=()=>{ state.mode="urgency"; results(true); };
+  document.getElementById("va").onclick=()=>{ state.mode="area"; results(true); };
+  document.getElementById("vc").onclick=()=>{ state.mode="check"; results(true); };
+  app.querySelectorAll(".atab").forEach(o=>o.onclick=()=>{ state.mode="area"; state.area=o.dataset.pl; results(true); });
+  app.querySelectorAll(".donechk input").forEach(c=>c.onchange=()=>{ c.checked?state.done.add(c.dataset.id):state.done.delete(c.dataset.id); results(true); });
+  app.querySelectorAll(".segb").forEach(b=>b.onclick=()=>{ state.tier=b.dataset.tier; results(true); });
+  const ng=document.getElementById("nextGrp"); if(ng) ng.onclick=()=>{ if(mode==="area") state.area=ng.dataset.k; else state.tier=ng.dataset.k; results(true); const t=document.querySelector(mode==="area"?".atabs":".seg"); if(t) t.scrollIntoView({behavior:"smooth",block:"start"}); };
   app.querySelectorAll(".chk input").forEach(c=>c.onchange=()=>{ c.checked?state.done.add(c.dataset.id):state.done.delete(c.dataset.id); results(true); });
-  document.getElementById("home").onclick=()=>{ state={view:"home",step:0,a:{},mode:state.mode}; render(); };
+  document.getElementById("backTop").onclick=()=>{ if(state.persona){ state={view:"home",step:0,a:{},mode:state.mode,showEx:true}; } else { state.view="form"; state.step=0; } render(); };
+  document.getElementById("home").onclick=()=>{ state={view:"home",step:0,a:{},mode:state.mode,showEx:true}; render(); };
   document.getElementById("edit").onclick=()=>{ state.view="form"; state.step=0; render(); };
   document.getElementById("copy").onclick=async()=>{
     const txt=["My UniGuide plan",""].concat(tiers.flatMap(([t,h])=>{ const it=p.filter(x=>x.tier===t); return it.length?[h.toUpperCase(),...it.map(x=>{ const r=svc(x.id,a); return `• ${fill(r.title,a)} (${r.meta.map(m=>fill(m[1],a)).join(", ")}) ${linkFor(r,a)}`+(r.steps||[]).map((t,i)=>`\n    ${i+1}. ${fill(t,a)}`).join(""); }),""]:[]; })).join("\n");
@@ -266,12 +306,12 @@ function results(keep){
   if(window.UGAccount) UGAccount.onPlan();
 }
 
-function card(x,a){ const r=svc(x.id,a); return `<div class="item ${x.tier}">
-  <div class="item-top">${state.mode==="area"?`<span class="u u-${x.tier}" style="margin-left:0">${tierShort[x.tier]}</span>`:`<span class="tag t-${r.pillar}">${pillarName[r.pillar]}</span>`}</div>
+function card(x,a){ const r=svc(x.id,a); const d=state.done&&state.done.has(x.id); return `<div class="item ${x.tier}${d?" isdone":""}">
+  <div class="item-top">${state.mode==="area"?`<span class="u u-${x.tier}" style="margin-left:0">${tierShort[x.tier]}</span>`:`<span class="tag t-${r.pillar}">${pillarName[r.pillar]}</span>`}<label class="donechk"><input type="checkbox" data-id="${x.id}" ${d?"checked":""}> ${d?"Done ✓":"Mark as done"}</label></div>
   <h3>${esc(fill(r.title,a))}</h3>
-  <div class="why">Why you're seeing this: ${esc(x.why)}</div>
+  <div class="why"><b>Why this matters:</b> ${esc(x.why)}</div>
   <p>${esc(fill(r.body,a))}</p>
-  ${r.steps&&r.steps.length?`<details class="guide" ${x.tier==="now"?"open":""}><summary>How to do it · ${r.steps.length} steps</summary><ol>${r.steps.map(t=>`<li>${esc(fill(t,a))}</li>`).join("")}</ol></details>`:""}
+  ${r.steps&&r.steps.length?`<details class="guide"><summary>How to do it · ${r.steps.length} steps</summary><ol>${r.steps.map(t=>`<li>${esc(fill(t,a))}</li>`).join("")}</ol></details>`:""}
   <div class="meta">${r.meta.map(([k,v])=>`<span><b>${k}:</b> ${esc(fill(v,a))}</span>`).join("")}<a href="${linkFor(r,a)}" target="_blank" rel="noopener">${r.generic?"Find it at your university ↗":"Official page ↗"}</a></div>
 </div>`; }
 

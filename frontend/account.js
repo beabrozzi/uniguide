@@ -56,18 +56,35 @@
   }
   function closeModal() { const o = document.getElementById("ugModal"); if (o) o.remove(); }
 
+  // Eye icons for the show/hide password button
+  const EYE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const EYE_OFF = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>';
+
   function showAuth(mode) {
     const signup = mode === "signup";
     const o = modal(`<h2>${signup ? "Create your account" : "Sign in"}</h2>
       <p class="sub">${signup ? "Save your plan and tick things off over the next few weeks." : "Welcome back. Sign in to see your saved plan."}</p>
       <form id="ugAuth">
         <input type="email" id="ugEmail" required placeholder="you@university.ac.uk" autocomplete="email">
-        <input type="password" id="ugPass" required minlength="8" placeholder="Password (at least 8 characters)" autocomplete="${signup ? "new-password" : "current-password"}">
+        <div class="pw-wrap">
+          <input type="password" id="ugPass" required minlength="8" placeholder="Password (at least 8 characters)" autocomplete="${signup ? "new-password" : "current-password"}">
+          <button type="button" class="pw-eye" id="ugEye" aria-label="Show password" aria-pressed="false">${EYE}</button>
+        </div>
         <div class="row"><button type="button" class="btn btn-g" id="ugCancel">Cancel</button><button class="btn btn-p" type="submit">${signup ? "Create account" : "Sign in"}</button></div>
       </form>
       <p class="sub" id="ugMsg" style="margin-top:8px"></p>
       <p class="sub" style="margin-top:6px">${signup ? 'Already have an account? <a href="#" id="ugSwap">Sign in</a>' : 'New here? <a href="#" id="ugSwap">Create an account</a>'}</p>`);
     o.querySelector("#ugCancel").onclick = closeModal;
+    // Show / hide password
+    o.querySelector("#ugEye").onclick = () => {
+      const pass = o.querySelector("#ugPass"), eye = o.querySelector("#ugEye");
+      const show = pass.type === "password";
+      pass.type = show ? "text" : "password";
+      eye.innerHTML = show ? EYE_OFF : EYE;
+      eye.setAttribute("aria-label", show ? "Hide password" : "Show password");
+      eye.setAttribute("aria-pressed", String(show));
+      pass.focus();
+    };
     o.querySelector("#ugSwap").onclick = (e) => { e.preventDefault(); showAuth(signup ? "login" : "signup"); };
     o.querySelector("#ugAuth").onsubmit = async (e) => {
       e.preventDefault();
@@ -222,7 +239,7 @@
         <div class="acct-row" style="margin-top:0"><button class="btn btn-o" data-save="login">Sign in</button><button class="btn btn-p" data-save="signup">Create account</button></div></div>`;
       el.querySelectorAll("[data-save]").forEach((b) => (b.onclick = () => showAuth(b.dataset.save)));
     } else if (!consented) {
-      el.innerHTML = `<div class="savecard ask"><div><b>Save this plan to your account?</b><small>Your answers include health information. Only you can see them, and you can delete them at any time. <a href="privacy.html" target="_blank">Privacy notice</a></small></div><button class="btn btn-p" id="ugConsent">I agree, save it</button></div>`;
+      el.innerHTML = `<div class="savecard ask"><div><b>Save this plan to your account?</b><small>Includes health info · only you can see it · <a href="privacy.html" target="_blank">Privacy notice</a></small></div><button class="btn btn-p" id="ugConsent">I agree, save it</button></div>`;
       el.querySelector("#ugConsent").onclick = giveConsent;
     } else {
       el.innerHTML = `<div class="savecard"><div><b>${state.welcome ? "Welcome back! Here's your saved plan." : "Saved to your account ✓"}</b><small>Changes and checklist progress save automatically. <a href="#account">My account</a></small></div></div>`;

@@ -194,7 +194,6 @@ const GUIDES = {
    "You can ask for support in your own language."
   ],
   "counselling": [
-   "Make sure you're registered with a GP first, because UCL counselling needs it.",
    "Open UCL Counselling Services and complete the online registration form.",
    "Expect to hear back within 24 hours for triage.",
    "You'll then be offered support, including up to 6 free sessions this year."
@@ -431,6 +430,16 @@ const GUIDES = {
    "Ask what welfare support and events they run.",
    "Report problems early."
   ],
+  "victimsupport": [
+   "If you're in immediate danger, call 999 first.",
+   "Call 0808 16 89 111 (free, 24/7), or use the live chat on the Victim Support website.",
+   "You don't need to have reported anything to the police to get support."
+  ],
+  "cruse": [
+   "Call the free helpline on 0808 808 1677, or use the online chat on the Cruse website.",
+   "Tell them a little about who you've lost. There's no right or wrong way to feel.",
+   "Ask about ongoing support, such as regular sessions with a volunteer."
+  ],
   "careersvc": [
    "Log in to myUCLCareers with your UCL account.",
    "Book a one-to-one appointment, or join a CV and applications session.",
@@ -468,7 +477,7 @@ const GUIDES = {
   "counselling": [
    "Search your university's website for 'counselling' or 'wellbeing'.",
    "Complete their registration or referral form.",
-   "Register with a GP too, because some services ask for it."
+   "It's also worth registering with a GP, who can support you alongside counselling."
   ],
   "ucl247": [
    "Find your university's wellbeing or student support page.",
@@ -719,45 +728,46 @@ const GUIDES = {
 const STEPS = [
   { title:"About you", qs:[
     {id:"uni", label:"Which university are you going to?", type:"uni"},
-    {id:"origin", label:"Where are you from?", type:"one", opts:[["home","UK (home student)"],["eu","EU"],["intl","Outside the EU"]]},
+    {id:"origin", label:"Are you a UK or international student?", type:"one", opts:[["home","UK student"],["intl","International student (including EU)"]]},
     {id:"visa", label:"What's your immigration status?", show:a=>!!a.origin&&a.origin!=="home", type:"one", opts:[["student","Student visa"],["settled","EU Settlement Scheme (settled / pre-settled)"],["other","Other, or not sure"]]},
     {id:"living", label:"Where are you living this year?", type:"one", opts:[["halls_cat","Halls with meals (catered)"],["halls_self","Halls, self-catered"],["pbsa","Private student halls"],["private","Private flat or house"],["family","With family"]]},
-    {id:"area", label:"Which part of London?", show:a=>uniInfo(a).ucl, type:"one", opts:[["central","Bloomsbury / central"],["east","East (near UCL East)"],["other","Elsewhere in London"]]},
-    {id:"circ", label:"Do any of these apply to you?", hint:"Pick all that apply", type:"many", opts:[["first","First in my family at university"],["care","Care-experienced"],["estranged","Estranged from my parents"],["carer","Parent or carer"],["none","None of these"]]},
+    {id:"area", label:"Where in London do you live?", show:a=>a.uni===UCL_NAME, type:"one", opts:[["central","Bloomsbury / central"],["east","East (near UCL East)"],["other","Elsewhere in London"]]},
+    {id:"circ", label:"Do any of these apply to you?", hint:"Pick all that apply", type:"many", opts:[["first","First in my family at university"],["care","Care-experienced"],["estranged","Estranged from my parents"],["carer","Parent or carer"],["none","None of these"],["prefer","Prefer not to say"]]},
   ]},
   { title:"Mental health", qs:[
-    {id:"mood", label:"How have you been feeling lately?", type:"one", opts:[["good","Mostly fine"],["stressed","Stressed or anxious"],["low","Low, struggling to cope"],["crisis","I'm not safe / in crisis right now"]]},
-    {id:"mhcond", label:"Do you have a diagnosed mental health condition?", type:"one", opts:[["no","No"],["yes","Yes"],["unsure","Not sure"]]},
-    {id:"worries", label:"Is anything in particular on your mind?", hint:"Pick all that apply", type:"many", opts:[["homesick","Homesickness"],["academic","Pressure from my course"],["relationships","Relationships or family"],["grief","Bereavement"],["unsafe","Harassment or feeling unsafe"],["none","Nothing specific"]]},
+    {id:"mood", label:"How have you been feeling lately?", type:"one", opts:[["good","Mostly fine"],["stressed","Stressed or anxious"],["low","Low, struggling to cope"],["crisis","I'm not safe / in crisis right now"],["prefer","Prefer not to say"]]},
+    {id:"mhcond", label:"Do you have a mental health condition you'd like us to consider?", hint:"Optional", optional:true, type:"one", opts:[["yes","Yes"],["no","No"],["prefer","Prefer not to say"]]},
+    {id:"worries", label:"Is there anything you'd like support with?", hint:"Select any that apply", type:"many", opts:[["homesick","Homesickness"],["academic","Pressure from my course"],["relationships","Relationships or family"],["grief","Bereavement"],["unsafe","Harassment or feeling unsafe"],["none","Nothing right now"],["prefer","Prefer not to say"]]},
   ]},
   { title:"Physical health", qs:[
-    {id:"gp", label:"Are you registered with a GP (doctor) near your university?", type:"one", opts:[["yes","Yes"],["no","No"],["unsure","Not sure / still at my home GP"]]},
-    {id:"conditions", label:"Anything that affects your studies or daily life?", hint:"Pick all that apply", type:"many", opts:[["longterm","Long-term physical condition"],["disability","Disability"],["neuro","ADHD / autism / dyslexia"],["meds","Regular medication"],["none","None"]]},
+    {id:"gp", label:"Are you registered with a GP (doctor) near your university?", type:"one", opts:[["yes","Yes"],["no","No"],["home","I'm still registered with my GP at home"],["unsure","Not sure"]]},
+    {id:"conditions", label:"Do you have any health or accessibility needs you'd like us to consider?", hint:"Optional · Pick all that apply", optional:true, type:"many", opts:[["longterm","Long-term physical condition"],["disability","Disability"],["neuro","ADHD / autism / dyslexia"],["meds","Regular medication"],["none","None"],["prefer","Prefer not to say"]]},
   ]},
   { title:"Food", qs:[
-    {id:"diet", label:"Allergies or dietary needs?", hint:"Pick all that apply", type:"many", opts:[["nuts","Nut allergy"],["gluten","Coeliac / gluten-free"],["dairy","Dairy-free"],["veg","Vegetarian / vegan"],["halal","Halal / kosher"],["none","None"]]},
-    {id:"food", label:"Weekly food budget", type:"range", min:10, max:100, step:5, unit:"£", suffix:"/ week", def:40},
+    {id:"allergy", label:"Do you have any food allergies or medical dietary needs?", hint:"Pick all that apply", type:"many", opts:[["nuts","Nut allergy"],["gluten","Coeliac disease"],["dairy","Dairy allergy or intolerance"],["otherallergy","Another food allergy"],["none","None"]]},
+    {id:"dietpref", label:"Any dietary preferences?", hint:"Pick all that apply", type:"many", opts:[["veg","Vegetarian / vegan"],["halal","Halal"],["kosher","Kosher"],["none","None"]]},
+    {id:"food", label:"Weekly food budget", type:"range", min:10, max:100, step:5, unit:"£", suffix:"/ week", def:40, unknown:"foodUnknown"},
   ]},
   { title:"Money", qs:[
-    {id:"money", label:"Money left each month after rent", type:"range", min:0, max:1000, step:50, unit:"£", suffix:"/ month", def:400},
+    {id:"money", label:"Approximately how much do you have each month for living expenses after rent?", hint:"An estimate is fine", type:"range", min:0, max:1000, step:50, unit:"£", suffix:"/ month", def:400},
     {id:"moneyissue", label:"Anything going on with money?", hint:"Pick all that apply", type:"many", opts:[["delay","My loan / funding is delayed"],["unexpected","Unexpected cost or change in circumstances"],["debt","Getting into debt / overdraft"],["work","Looking for part-time work"],["none","Nothing right now"]]},
   ]},
   { title:"Home & studies", qs:[
-    {id:"housing", label:"How are things where you live?", type:"one", opts:[["fine","Fine"],["dispute","Problems with flatmates, landlord or contract"],["risk","I might lose my housing"]]},
+    {id:"housing", label:"How is your accommodation situation?", type:"one", opts:[["fine","Fine"],["dispute","Housing or flatmate problems"],["risk","I might lose my housing"]]},
     {id:"course", label:"How's your course going?", type:"one", opts:[["fine","OK so far"],["behind","Falling behind or overwhelmed"],["event","Illness or an event is affecting my deadlines"]]},
-    {id:"career", label:"Thinking about work or your future?", hint:"Pick all that apply", type:"many", opts:[["parttime","A part-time job"],["internship","Internships or work experience"],["volunteer","Volunteering"],["unsure","Not sure what I want to do"],["none","Not right now"]]},
+    {id:"career", label:"Would you like help exploring opportunities?", hint:"Pick all that apply", type:"many", opts:[["parttime","Part-time jobs"],["internship","Internships or work experience"],["volunteer","Volunteering"],["unsure","Exploring career options"],["none","Not right now"]]},
   ]},
   { title:"Schedule & social", qs:[
-    {id:"schedule", label:"When are you usually free?", type:"one", opts:[["day","Daytime is fine"],["evenings","Mostly evenings & weekends"],["packed","Barely ever: lectures, labs, work"]]},
-    {id:"social", label:"How's the social side?", type:"one", opts:[["good","Good, settling in"],["some","Know a few people"],["lonely","Feeling lonely or homesick"]]},
-    {id:"identity", label:"Would support with any of these help?", hint:"Optional", optional:true, type:"many", opts:[["lgbt","LGBTQ+ identity"],["faith","Faith or religion"],["none","No thanks"]]},
+    {id:"schedule", label:"When do you usually have free time?", type:"one", opts:[["day","Daytime is fine"],["evenings","Mostly evenings & weekends"],["packed","Barely ever: lectures, labs, work"]]},
+    {id:"social", label:"How are you finding the social side of university?", type:"one", opts:[["good","Good, settling in"],["some","Know a few people"],["lonely","Feeling lonely or homesick"]]},
+    {id:"identity", label:"Would you like to discover any specific student communities?", hint:"Optional", optional:true, type:"many", opts:[["lgbt","LGBTQ+ communities"],["faith","Faith or religious communities"],["none","No thanks"]]},
   ]},
 ];
 
 const PERSONAS = [
-  {name:"Sofia, 18", desc:"From Brazil, King's College London, anxious, no GP yet, £35/week", a:{uni:"King's College London",origin:"intl",visa:"student",career:["parttime"],living:"private",area:"central",mood:"stressed",mhcond:"no",gp:"no",conditions:["none"],diet:["veg"],food:35,money:300,moneyissue:["work"],schedule:"evenings",social:"lonely",circ:["none"],worries:["homesick"],housing:"fine",course:"fine",identity:[]}},
-  {name:"Tom, 19", desc:"UCL, first in family, coeliac, loan delayed, ill before a deadline", a:{uni:UCL_NAME,origin:"home",career:["unsure"],living:"halls_cat",area:"central",mood:"good",mhcond:"no",gp:"unsure",conditions:["longterm","meds"],diet:["gluten"],food:25,money:50,moneyissue:["delay"],schedule:"day",social:"some",circ:["first"],worries:["none"],housing:"fine",course:"event",identity:[]}},
-  {name:"Amira, 18", desc:"UCL, estranged, ADHD, struggling, housing dispute", a:{uni:UCL_NAME,origin:"home",career:["none"],living:"halls_self",area:"east",mood:"low",mhcond:"yes",gp:"yes",conditions:["neuro"],diet:["halal"],food:20,money:150,moneyissue:["unexpected","debt"],schedule:"packed",social:"lonely",circ:["estranged"],worries:["academic"],housing:"dispute",course:"behind",identity:["faith"]}},
+  {name:"Sofia, 18", desc:"",tags:[["international","International"],["physical","Health"],["career","Careers"]], a:{uni:"King's College London",origin:"intl",visa:"student",career:["parttime"],living:"private",area:"central",mood:"stressed",mhcond:"no",gp:"no",conditions:["none"],allergy:["none"],dietpref:["veg"],food:35,money:300,moneyissue:["work"],schedule:"evenings",social:"lonely",circ:["none"],worries:["homesick"],housing:"fine",course:"fine",identity:[]}},
+  {name:"Tom, 19", desc:"",tags:[["physical","Health"],["money","Money"],["study","Studies"]], a:{uni:UCL_NAME,origin:"home",career:["unsure"],living:"halls_cat",area:"central",mood:"good",mhcond:"no",gp:"home",conditions:["longterm","meds"],allergy:["gluten"],dietpref:["none"],food:25,money:50,moneyissue:["delay"],schedule:"day",social:"some",circ:["first"],worries:["none"],housing:"fine",course:"event",identity:[]}},
+  {name:"Amira, 18", desc:"",tags:[["mental","Wellbeing"],["money","Money"],["study","Housing"]], a:{uni:UCL_NAME,origin:"home",career:["none"],living:"halls_self",area:"east",mood:"low",mhcond:"yes",gp:"yes",conditions:["neuro"],allergy:["none"],dietpref:["halal"],food:20,money:150,moneyissue:["unexpected","debt"],schedule:"packed",social:"lonely",circ:["estranged"],worries:["academic"],housing:"dispute",course:"behind",identity:["faith"]}},
 ];
 
 /* ───────────────────────── SERVICE CATALOGUE ─────────────────────────
@@ -767,7 +777,7 @@ const R = {
   shout:{pillar:"mental",title:"Shout",body:"Free, confidential text support if you'd rather type than talk.",meta:[["Text","SHOUT to 85258"],["When","24/7"]],link:"https://giveusashout.org"},
   stayalive:{pillar:"mental",title:"Stay Alive app",body:"Free suicide-prevention app: build a safety plan and find help fast.",meta:[["Get it","App Store / Google Play"]],link:"https://stayalive.prevent-suicide.org.uk"},
   ucl247:{pillar:"mental",title:"UCL 24/7 Student Support Line",body:"Free, confidential talk support for stress, anxiety, homesickness, money worries and more, in 35+ languages. Not for emergencies.",meta:[["Call","0808 238 0077"],["When","24/7, 365 days"]],link:"https://www.ucl.ac.uk/students/support-and-wellbeing/mental-health-and-wellbeing/ucl-247-student-support-line",uni:"ucl",alt:{title:"{uni}'s wellbeing support",body:"Your university's wellbeing or student support team can talk through stress, homesickness and money worries, and refer you on. For 24/7 support, Samaritans (116 123) and Shout (text SHOUT to 85258) are always open.",meta:[["24/7","Samaritans 116 123"]],link:"search:{uni} student wellbeing support"}},
-  counselling:{pillar:"mental",title:"Register with UCL Counselling Services",body:"Up to 6 free counselling sessions a year. Everyone is triaged within 24 hours of registering. You need to be registered with a GP.",meta:[["Cost","Free"],["Where","3–4 Taviton Street, WC1H 0BT"]],link:"https://www.ucl.ac.uk/students/support-and-wellbeing/student-psychological-and-counselling-services",uni:"ucl",alt:{title:"Register with {uni}'s counselling service",body:"Most UK universities offer free, confidential counselling. Register early so you're in the system before you need it. Some ask you to be registered with a GP.",meta:[["Cost","Usually free"]],link:"search:{uni} counselling service"}},
+  counselling:{pillar:"mental",title:"Register with UCL Counselling Services",body:"Up to 6 free counselling sessions a year. Everyone is triaged within 24 hours of registering.",meta:[["Cost","Free"],["Where","3–4 Taviton Street, WC1H 0BT"]],link:"https://www.ucl.ac.uk/students/support-and-wellbeing/student-psychological-and-counselling-services",uni:"ucl",alt:{title:"Register with {uni}'s counselling service",body:"Most UK universities offer free, confidential counselling. Register early so you're in the system before you need it.",meta:[["Cost","Usually free"]],link:"search:{uni} counselling service"}},
   nightline:{pillar:"mental",title:"London Nightline",body:"A listening service run by students, for students, overnight, by phone or online chat.",meta:[["Call","020 7631 0101"],["When","6pm–8am"]],link:"https://nightline.org.uk",london:true,alt:{title:"Your local Nightline",body:"Many universities have a Nightline: a confidential listening service run by students, for students, overnight. Find out whether {uni} has one.",meta:[["When","Overnight"]],link:"https://www.nightline.ac.uk"}},
   lifeline:{pillar:"mental",title:"Lifeline: crisis support in Northern Ireland",body:"Free, confidential crisis helpline for anyone in Northern Ireland who is in distress or despair.",meta:[["Call","0808 808 8000"],["When","24/7"]],link:"https://www.lifelinehelpline.info"},
   railcard:{pillar:"money",title:"Get a 16–25 Railcard",body:"Saves a third on most rail fares across Great Britain, including trips home. It usually pays for itself in a couple of journeys.",meta:[["Saves","1/3 on rail fares"]],link:"https://www.16-25railcard.co.uk"},
@@ -778,7 +788,7 @@ const R = {
 
   ridgmount:{pillar:"physical",title:"Register with Ridgmount Practice (UCL's partner GP)",body:"You aren't automatically given a GP when you move. Ridgmount, in Bloomsbury, sees thousands of students a year and covers most of central and north London. Register online, then book a check-in with a nurse or GP.",meta:[["Call","020 7387 6306"],["Do it","Within 2 weeks of arriving"]],link:"https://www.ucl.ac.uk/students/support-and-wellbeing/health-care/registering-doctor-gp"},
   unigp:{pillar:"physical",title:"Register with your university's GP practice",body:"",meta:[],link:"{gpLink}"},
-  findgp:{pillar:"physical",title:"Register with a GP near where you live",body:"Pick a surgery close to where you live. You need a GP for prescriptions and referrals, and often for university counselling too.",meta:[["Do it","Within 2 weeks of arriving"]],link:"{gpLink}"},
+  findgp:{pillar:"physical",title:"Register with a GP near where you live",body:"Pick a surgery close to where you live. You need a GP for prescriptions and referrals.",meta:[["Do it","Within 2 weeks of arriving"]],link:"{gpLink}"},
   gpintl:{pillar:"international",title:"How the NHS works for international students",body:"Anyone in England can register with a GP, whatever their immigration status. Your GP is your first stop for physical and mental health, and A&E is for emergencies only.",meta:[["Guide","UCL international healthcare page"]],link:"https://www.ucl.ac.uk/students/international-students/international-support/healthcare-uk/accessing-healthcare-uk",uni:"ucl",alt:{body:"International students can register with a GP. Your GP is your first stop for physical and mental health, and A&E is for emergencies only.",link:"https://www.nhs.uk/nhs-services/gps/how-to-register-with-a-gp-surgery/"}},
   vaccines:{pillar:"physical",title:"Check your MenACWY and MMR vaccines",body:"UCL urges all new students to have the meningitis (MenACWY) and MMR vaccines. Ask your new GP if you're not sure you've had them.",meta:[["Where","Your GP"]],link:"https://www.ucl.ac.uk/parents-guardians-of-ucl-students/health-and-wellbeing",uni:"ucl",alt:{body:"New students are advised to have the meningitis (MenACWY) and MMR vaccines. Ask your new GP if you're not sure you've had them.",link:"https://www.nhs.uk/vaccinations/menacwy-vaccine/"}},
   meds:{pillar:"physical",title:"Move your repeat prescription",body:"Once you're registered, ask your new GP to take over your repeat prescriptions so you don't run out mid-term.",meta:[["Where","Your new GP"]],link:"https://www.nhs.uk/nhs-services/prescriptions/"},
@@ -813,6 +823,8 @@ const R = {
   carebursary:{pillar:"money",title:"UCL Care Experienced Bursary: £1,000 a year",body:"For UK (Home fee) undergraduates under 25 who were in local-authority care. There's no separate application: confirm your care-leaver status with Student Finance and UCL assesses you automatically. First-years can ask for a £200 advance for transition costs.",meta:[["Amount","£1,000 / year"],["Contact","studentfunding@ucl.ac.uk"]],link:"https://www.ucl.ac.uk/scholarships/care-leaver-bursary",uni:"ucl",alt:{title:"Support for care-experienced students",body:"Many UK universities offer extra bursaries and support for care-experienced students. Ask {uni}'s student funding team what you're entitled to.",meta:[],link:"search:{uni} care experienced bursary"}},
   estrangedbursary:{pillar:"money",title:"UCL Estranged Student Bursary: £1,000 a year",body:"For UK (Home fee) undergraduates under 25 whom Student Finance assesses as independent because of estrangement. Fill in a Confirmation of Estrangement form with Student Finance, and UCL contacts you. Became estranged during the year? Contact Student Funding.",meta:[["Amount","£1,000 / year"],["Contact","studentfunding@ucl.ac.uk"]],link:"https://www.ucl.ac.uk/scholarships/estranged-student-bursary",uni:"ucl",alt:{title:"Support for estranged students",body:"Many UK universities offer extra bursaries and support for students estranged from their parents. Ask {uni}'s student funding team, and ask Student Finance about being assessed as independent.",meta:[],link:"search:{uni} estranged student support"}},
   carers:{pillar:"social",title:"Support for student parents and carers",body:"UCL and the Students' Union run support for students with caring responsibilities, including an Officer for Students with Caring Responsibilities and a Parents and Carers Network. Full-time students in England may be eligible for a Childcare Grant or Parents' Learning Allowance.",meta:[["Who","SU Officer for Students with Caring Responsibilities"]],link:"https://www.ucl.ac.uk/study/support-and-wellbeing/specialist-support/students-children",uni:"ucl",alt:{title:"Support for student parents and carers",body:"Ask {uni}'s student support team about support for students with caring responsibilities. Full-time students in England may be eligible for a Childcare Grant or Parents' Learning Allowance.",meta:[],link:"https://www.gov.uk/childcare-grant"}},
+  victimsupport:{pillar:"mental",title:"Victim Support",body:"Free, confidential support for anyone affected by crime, including harassment and abuse, whether or not you've reported it to the police.",meta:[["Call","0808 16 89 111"],["When","24/7"],["Cost","Free"]],link:"https://www.victimsupport.org.uk"},
+  cruse:{pillar:"mental",title:"Cruse Bereavement Support",body:"Free support from trained volunteers after someone close to you has died, by phone, online chat or in person.",meta:[["Call","0808 808 1677"],["Cost","Free"]],link:"https://www.cruse.org.uk"},
   reportsupport:{pillar:"mental",title:"UCL Report + Support",body:"Report bullying, harassment, sexual misconduct or violence, anonymously or with your details, or ask to speak to an adviser about your options. If you're in immediate danger, call 999.",meta:[["How","Online, anonymous option"]],link:"https://report-support.ucl.ac.uk",uni:"ucl",alt:{title:"Report harassment at {uni}",body:"Most universities have an online reporting tool, often with an anonymous option, and advisers who can talk through your options. If you're in immediate danger, call 999.",meta:[],link:"search:{uni} report harassment"}},
   chaplaincy:{pillar:"social",title:"UCL Chaplaincy",body:"Pastoral support for religious or faith concerns, and for students of any faith or none.",meta:[["Email","chaplaincy@ucl.ac.uk"],["Call","020 3108 8942"]],link:"https://www.ucl.ac.uk/students/support-and-wellbeing-services",uni:"ucl",alt:{title:"{uni}'s chaplaincy or faith centre",body:"Most universities have chaplains or a faith centre offering pastoral support to students of any faith or none.",meta:[],link:"search:{uni} chaplaincy"}},
   lgbt:{pillar:"social",title:"LGBTQ+ support",body:"The UCL 24/7 Student Support Line can connect you with an adviser trained in LGBTQ+ issues. The Students' Union also has an LGBTQ+ Students' Network and a Gender Expression Fund for trans, non-binary and gender non-conforming students.",meta:[["24/7 line","0808 238 0077"]],link:"https://studentsunionucl.org/gender-affirmation-fund",uni:"ucl",alt:{title:"LGBTQ+ support",body:"Most Students' Unions have an LGBTQ+ society or network. Switchboard runs a national LGBTQ+ support line.",meta:[],link:"https://switchboard.lgbt"}},
