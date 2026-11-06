@@ -1,0 +1,20 @@
+# Render Blueprint: creates the backend web service, which also serves the frontend.
+# The database is Supabase PostgreSQL: you paste its connection string as DATABASE_URL when Render asks.
+services:
+  - type: web
+    name: uniguide
+    runtime: node
+    plan: free
+    region: frankfurt              # EU, close to UK students
+    buildCommand: npm install --prefix backend
+    startCommand: node backend/server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true        # Render creates a random secret for signing login sessions
+      - key: PGSSL
+        value: "true"              # Supabase connections must be encrypted
+      - key: DATABASE_URL
+        sync: false                # Render asks you for this: your Supabase connection string
