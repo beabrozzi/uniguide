@@ -263,6 +263,8 @@ p.sec.full,h2.big.full{max-width:none}
 .tl .n{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:.85rem;background:#fff;color:var(--brand);border:2px solid var(--brand);box-shadow:0 0 0 6px var(--bg)}
 .tl.now .n{background:var(--brand);color:#fff}
 .here{font-size:.68rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:var(--brand-l);color:var(--brand-d);padding:3px 8px;border-radius:99px;position:relative;box-shadow:0 0 0 6px var(--bg)}
+.growth-notes{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:28px}
+.growth-notes .path{margin-top:0;align-content:flex-start}
 .tl h3{font-size:1.05rem;margin-bottom:4px}.tl p{font-size:.9rem;color:var(--muted)}
 .subsec{margin-top:56px;padding-top:48px;border-top:1px solid var(--line)}
 .s3 .ic{width:42px;height:42px;border-radius:12px;background:var(--brand-l);display:grid;place-items:center;font-size:1.3rem;margin-bottom:12px}
@@ -321,6 +323,7 @@ footer.site .logo{color:var(--ink);font-size:1.3rem}footer.site .logo span{color
   .hero{grid-template-columns:1fr;padding-top:40px}.hero h1{font-size:2.4rem}
   .stats,.steps3,.areas,.aigrid,.b2b,.b2b.two{grid-template-columns:1fr}
   .timeline{grid-template-columns:1fr}.timeline::before{display:none}
+  .growth-notes{grid-template-columns:1fr}
   .services{grid-template-columns:1fr 1fr}.vs,.team{grid-template-columns:1fr}
   .nav a.l{display:none}
   .overview{grid-template-columns:repeat(3,1fr)}
