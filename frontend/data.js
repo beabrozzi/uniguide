@@ -131,6 +131,7 @@ const UCL_NAME = "University College London (UCL)";
    Anything not listed falls back to the generic "ask your university" version. */
 const UNI_MAP = {
   "King's College London": {
+    careersvc:{title:"Book an appointment with King's Careers & Employability",body:"Free one-to-one careers advice for King's students: working out what you want to do, CV and application reviews, and job and internship listings.",meta:[["Cost","Free"]],link:"https://www.kcl.ac.uk/careers"},
     unigp:{title:"Register with King's College NHS Health Centre",body:"An NHS GP practice for King's students and staff, on the Strand campus. Register online through the practice website and have evidence of your student status ready.",meta:[["Where","Bush House SE Wing, 3rd floor, Strand"],["Call","020 4548 9842"]],link:"https://www.kcl.ac.uk/students/looking-after-your-health-at-university"},
     counselling:{title:"King's Counselling & Mental Health Support Service",body:"Free, confidential in-person and online support for King's students. King's Mental Health Advisors can also help you register with a GP and find the right support.",meta:[["Cost","Free"]],link:"https://www.kcl.ac.uk/counselling"},
     ucl247:{title:"King's Counselling Online",body:"Short-term (up to 6 sessions), solution-focused counselling with Spectrum Life for low to moderate needs, including in the evenings, at weekends and on closure days, when daytime services are shut.",meta:[["When","Out of hours, weekends, closure days"]],link:"https://www.kcl.ac.uk/counselling"},
@@ -141,6 +142,7 @@ const UNI_MAP = {
     societies:{title:"Join 1–2 KCLSU clubs or societies",body:"KCLSU has over 400 societies, sports and activity groups. {schedNote}",meta:[["Where","KCLSU"]],link:"https://www.kcl.ac.uk/study/student-experience/kclsu"},
   },
   "London School of Economics (LSE)": {
+    careersvc:{title:"Book an appointment with LSE Careers",body:"Free one-to-one careers advice for LSE students: working out what you want to do, CV and application reviews, and job and internship listings.",meta:[["Cost","Free"]],link:"https://info.lse.ac.uk/current-students/careers"},
     unigp:{title:"Register with St Philips Medical Centre (on LSE's campus)",body:"The GP practice on LSE's campus. LSE advises registering at the start of term so it's easy to get an appointment when you need one. Check you live in the catchment area, or use the NHS finder.",meta:[["Call","020 7611 5131"]],link:"https://info.lse.ac.uk/current-students/estates-division/facilities-guide/medical-and-childcare-provision"},
     counselling:{title:"Book a Wellbeing Appointment at LSE",body:"LSE's Student Wellbeing Service starts with a Wellbeing Appointment, which can refer you to free short-term counselling (up to 6 sessions), workshops or peer support. Online or in person.",meta:[["Call","020 7955 7767"],["Email","student.wellbeing@lse.ac.uk"]],link:"https://info.lse.ac.uk/current-students/student-wellbeing/Student-Wellbeing-and-Counselling-Service/about-counselling.aspx"},
     ucl247:{title:"LSE 24/7 mental health support line",body:"Sponsored by LSE through Spectrum.Life. Every call is answered by a trained counsellor or psychotherapist, at any hour.",meta:[["Call","0808 189 01 03"],["When","24/7"]],link:"https://info.lse.ac.uk/current-students/student-wellbeing/disability-wellbeing/"},
@@ -154,6 +156,7 @@ const UNI_MAP = {
     reportsupport:{title:"LSE Report + Support",body:"LSE's online tool for reporting bullying, harassment, discrimination or sexual misconduct, anonymously or with contact details so an adviser can help. If you're in immediate danger, call 999.",meta:[["How","Online, anonymous option"]],link:"https://reportandsupport.lse.ac.uk"},
   },
   "Imperial College London": {
+    careersvc:{title:"Book an appointment with Imperial's Careers Service",body:"Free one-to-one careers advice for Imperial students: working out what you want to do, CV and application reviews, and job and internship listings.",meta:[["Cost","Free"]],link:"https://www.imperial.ac.uk/careers"},
     unigp:{title:"Register with Imperial College Health Centre",body:"The NHS GP practice on the South Kensington campus, nearest to most Imperial halls. Check you live in its catchment area. You can't register through the NHS website, so contact the practice directly.",meta:[["Where","40 Princes Gardens, SW7 1LY"],["Call","020 7584 6301"]],link:"https://www.imperial.ac.uk/student-support-zone/your-health/doctor-and-dentist"},
     counselling:{title:"Imperial Student Counselling & Mental Health Advice Service",body:"Free and confidential for all registered Imperial students. Complete the referral form (open 24/7) to arrange a first conversation. Options include brief counselling (up to 6 sessions) and the Student Mental Health Intervention team.",meta:[["Cost","Free"]],link:"https://www.imperial.ac.uk/students/counselling/how-to-contact-us/"},
     ucl247:{title:"SilverCloud: 24/7 online self-help",body:"Imperial gives students access to SilverCloud, online CBT-based programmes you can use at any hour. If you need to talk to someone right now, Samaritans (116 123) and Shout (text SHOUT to 85258) are always open.",meta:[["When","24/7"]],link:"https://www.imperial.ac.uk/students/counselling/"},
@@ -427,6 +430,38 @@ const GUIDES = {
    "Introduce yourself at reception.",
    "Ask what welfare support and events they run.",
    "Report problems early."
+  ],
+  "careersvc": [
+   "Log in to myUCLCareers with your UCL account.",
+   "Book a one-to-one appointment, or join a CV and applications session.",
+   "Bring a draft CV or a few questions. You don't need a plan yet."
+  ],
+  "internships": [
+   "Make a free account on Prospects and set job alerts for your subject.",
+   "Put application deadlines in your calendar: many close in the autumn or before Christmas.",
+   "In first year, search for insight days and spring weeks.",
+   "Ask your careers service to check your CV before you apply."
+  ],
+  "volunteer": [
+   "Browse the volunteering opportunities on the Students' Union UCL website.",
+   "Pick something that fits your timetable. One-off events are an easy start.",
+   "Sign up, and add it to your CV once you've started."
+  ],
+  "evisa": [
+   "Go to GOV.UK and open 'Get access to your eVisa' (the link below).",
+   "Create your UKVI account with your passport and the details from your visa application.",
+   "Check that your name, photo and visa dates are correct.",
+   "When a landlord or employer asks, get a share code from GOV.UK's 'View and prove your immigration status'."
+  ],
+  "visaadvice": [
+   "Search your university's website for 'student immigration advice' or 'visa advice'.",
+   "Save their email address and drop-in times.",
+   "Contact them before you change course, take a break from your studies or travel for a long time."
+  ],
+  "ukcisa": [
+   "Go to ukcisa.org.uk.",
+   "Read their guides on working, healthcare and your visa conditions.",
+   "Still unsure? Contact their student advice line, or ask your university's advisers."
   ]
  },
  "alt": {
@@ -534,6 +569,16 @@ const GUIDES = {
   "resteam": [
    "Introduce yourself at reception.",
    "Ask what welfare support and events they run."
+  ],
+  "careersvc": [
+   "Open your university's careers service page (the link below).",
+   "Log in to their careers portal with your student account and book an appointment.",
+   "Bring a draft CV or a few questions. You don't need a plan yet."
+  ],
+  "volunteer": [
+   "Find your Students' Union's volunteering page.",
+   "Pick a one-off event or a regular role that fits your timetable.",
+   "Sign up, and add it to your CV once you've started."
   ]
  },
  "map": {
@@ -675,6 +720,7 @@ const STEPS = [
   { title:"About you", qs:[
     {id:"uni", label:"Which university are you going to?", type:"uni"},
     {id:"origin", label:"Where are you from?", type:"one", opts:[["home","UK (home student)"],["eu","EU"],["intl","Outside the EU"]]},
+    {id:"visa", label:"What's your immigration status?", show:a=>!!a.origin&&a.origin!=="home", type:"one", opts:[["student","Student visa"],["settled","EU Settlement Scheme (settled / pre-settled)"],["other","Other, or not sure"]]},
     {id:"living", label:"Where are you living this year?", type:"one", opts:[["halls_cat","Halls with meals (catered)"],["halls_self","Halls, self-catered"],["pbsa","Private student halls"],["private","Private flat or house"],["family","With family"]]},
     {id:"area", label:"Which part of London?", show:a=>uniInfo(a).ucl, type:"one", opts:[["central","Bloomsbury / central"],["east","East (near UCL East)"],["other","Elsewhere in London"]]},
     {id:"circ", label:"Do any of these apply to you?", hint:"Pick all that apply", type:"many", opts:[["first","First in my family at university"],["care","Care-experienced"],["estranged","Estranged from my parents"],["carer","Parent or carer"],["none","None of these"]]},
@@ -699,6 +745,7 @@ const STEPS = [
   { title:"Home & studies", qs:[
     {id:"housing", label:"How are things where you live?", type:"one", opts:[["fine","Fine"],["dispute","Problems with flatmates, landlord or contract"],["risk","I might lose my housing"]]},
     {id:"course", label:"How's your course going?", type:"one", opts:[["fine","OK so far"],["behind","Falling behind or overwhelmed"],["event","Illness or an event is affecting my deadlines"]]},
+    {id:"career", label:"Thinking about work or your future?", hint:"Pick all that apply", type:"many", opts:[["parttime","A part-time job"],["internship","Internships or work experience"],["volunteer","Volunteering"],["unsure","Not sure what I want to do"],["none","Not right now"]]},
   ]},
   { title:"Schedule & social", qs:[
     {id:"schedule", label:"When are you usually free?", type:"one", opts:[["day","Daytime is fine"],["evenings","Mostly evenings & weekends"],["packed","Barely ever: lectures, labs, work"]]},
@@ -708,9 +755,9 @@ const STEPS = [
 ];
 
 const PERSONAS = [
-  {name:"Sofia, 18", desc:"From Brazil, King's College London, anxious, no GP yet, £35/week", a:{uni:"King's College London",origin:"intl",living:"private",area:"central",mood:"stressed",mhcond:"no",gp:"no",conditions:["none"],diet:["veg"],food:35,money:300,moneyissue:["work"],schedule:"evenings",social:"lonely",circ:["none"],worries:["homesick"],housing:"fine",course:"fine",identity:[]}},
-  {name:"Tom, 19", desc:"UCL, first in family, coeliac, loan delayed, ill before a deadline", a:{uni:UCL_NAME,origin:"home",living:"halls_cat",area:"central",mood:"good",mhcond:"no",gp:"unsure",conditions:["longterm","meds"],diet:["gluten"],food:25,money:50,moneyissue:["delay"],schedule:"day",social:"some",circ:["first"],worries:["none"],housing:"fine",course:"event",identity:[]}},
-  {name:"Amira, 18", desc:"UCL, estranged, ADHD, struggling, housing dispute", a:{uni:UCL_NAME,origin:"home",living:"halls_self",area:"east",mood:"low",mhcond:"yes",gp:"yes",conditions:["neuro"],diet:["halal"],food:20,money:150,moneyissue:["unexpected","debt"],schedule:"packed",social:"lonely",circ:["estranged"],worries:["academic"],housing:"dispute",course:"behind",identity:["faith"]}},
+  {name:"Sofia, 18", desc:"From Brazil, King's College London, anxious, no GP yet, £35/week", a:{uni:"King's College London",origin:"intl",visa:"student",career:["parttime"],living:"private",area:"central",mood:"stressed",mhcond:"no",gp:"no",conditions:["none"],diet:["veg"],food:35,money:300,moneyissue:["work"],schedule:"evenings",social:"lonely",circ:["none"],worries:["homesick"],housing:"fine",course:"fine",identity:[]}},
+  {name:"Tom, 19", desc:"UCL, first in family, coeliac, loan delayed, ill before a deadline", a:{uni:UCL_NAME,origin:"home",career:["unsure"],living:"halls_cat",area:"central",mood:"good",mhcond:"no",gp:"unsure",conditions:["longterm","meds"],diet:["gluten"],food:25,money:50,moneyissue:["delay"],schedule:"day",social:"some",circ:["first"],worries:["none"],housing:"fine",course:"event",identity:[]}},
+  {name:"Amira, 18", desc:"UCL, estranged, ADHD, struggling, housing dispute", a:{uni:UCL_NAME,origin:"home",career:["none"],living:"halls_self",area:"east",mood:"low",mhcond:"yes",gp:"yes",conditions:["neuro"],diet:["halal"],food:20,money:150,moneyissue:["unexpected","debt"],schedule:"packed",social:"lonely",circ:["estranged"],worries:["academic"],housing:"dispute",course:"behind",identity:["faith"]}},
 ];
 
 /* ───────────────────────── SERVICE CATALOGUE ─────────────────────────
@@ -732,7 +779,7 @@ const R = {
   ridgmount:{pillar:"physical",title:"Register with Ridgmount Practice (UCL's partner GP)",body:"You aren't automatically given a GP when you move. Ridgmount, in Bloomsbury, sees thousands of students a year and covers most of central and north London. Register online, then book a check-in with a nurse or GP.",meta:[["Call","020 7387 6306"],["Do it","Within 2 weeks of arriving"]],link:"https://www.ucl.ac.uk/students/support-and-wellbeing/health-care/registering-doctor-gp"},
   unigp:{pillar:"physical",title:"Register with your university's GP practice",body:"",meta:[],link:"{gpLink}"},
   findgp:{pillar:"physical",title:"Register with a GP near where you live",body:"Pick a surgery close to where you live. You need a GP for prescriptions and referrals, and often for university counselling too.",meta:[["Do it","Within 2 weeks of arriving"]],link:"{gpLink}"},
-  gpintl:{pillar:"physical",title:"How the NHS works for international students",body:"Anyone in England can register with a GP, whatever their immigration status. Your GP is your first stop for physical and mental health, and A&E is for emergencies only.",meta:[["Guide","UCL international healthcare page"]],link:"https://www.ucl.ac.uk/students/international-students/international-support/healthcare-uk/accessing-healthcare-uk",uni:"ucl",alt:{body:"International students can register with a GP. Your GP is your first stop for physical and mental health, and A&E is for emergencies only.",link:"https://www.nhs.uk/nhs-services/gps/how-to-register-with-a-gp-surgery/"}},
+  gpintl:{pillar:"international",title:"How the NHS works for international students",body:"Anyone in England can register with a GP, whatever their immigration status. Your GP is your first stop for physical and mental health, and A&E is for emergencies only.",meta:[["Guide","UCL international healthcare page"]],link:"https://www.ucl.ac.uk/students/international-students/international-support/healthcare-uk/accessing-healthcare-uk",uni:"ucl",alt:{body:"International students can register with a GP. Your GP is your first stop for physical and mental health, and A&E is for emergencies only.",link:"https://www.nhs.uk/nhs-services/gps/how-to-register-with-a-gp-surgery/"}},
   vaccines:{pillar:"physical",title:"Check your MenACWY and MMR vaccines",body:"UCL urges all new students to have the meningitis (MenACWY) and MMR vaccines. Ask your new GP if you're not sure you've had them.",meta:[["Where","Your GP"]],link:"https://www.ucl.ac.uk/parents-guardians-of-ucl-students/health-and-wellbeing",uni:"ucl",alt:{body:"New students are advised to have the meningitis (MenACWY) and MMR vaccines. Ask your new GP if you're not sure you've had them.",link:"https://www.nhs.uk/vaccinations/menacwy-vaccine/"}},
   meds:{pillar:"physical",title:"Move your repeat prescription",body:"Once you're registered, ask your new GP to take over your repeat prescriptions so you don't run out mid-term.",meta:[["Where","Your new GP"]],link:"https://www.nhs.uk/nhs-services/prescriptions/"},
   disability:{pillar:"physical",title:"Register with Disability & Neurodiversity support",body:"Get personalised support and Reasonable Academic Adjustments (e.g. exam arrangements, assistive tech). Apply for adjustments on Portico once you're registered.",meta:[["How","askUCL → Log an enquiry"],["Phone","020 3108 8836"]],link:"https://www.ucl.ac.uk/study/support-and-wellbeing/disability-and-neurodiversity/support-we-offer/registering-support",uni:"ucl",alt:{title:"Register with {uni}'s disability support team",body:"Get personalised support and reasonable adjustments (e.g. exam arrangements, assistive tech). Register as early as you can, ideally before term starts.",meta:[],link:"search:{uni} disability support register"}},
@@ -753,13 +800,13 @@ const R = {
   debt:{pillar:"money",title:"Free money & debt advice from the Students' Union",body:"Independent, confidential advice on budgeting, overdrafts and debt before it snowballs.",meta:[["Where","25 Gordon Street"]],link:"https://studentsunionucl.org/financial-support",uni:"ucl",alt:{title:"Free money & debt advice from your Students' Union",body:"Most Students' Unions run independent advice on money, debt, housing and academic issues.",meta:[],link:"search:{uni} students union advice service"}},
   col:{pillar:"money",title:"UCL Cost of Living Hub",body:"All of UCL's money help in one place, including emergency accommodation guidance and budgeting resources.",meta:[],link:"https://www.ucl.ac.uk/students/cost-living-hub",uni:"ucl",alt:{title:"{uni}'s cost of living support",body:"Most universities keep their money help in one place. Look for their cost of living or money advice page.",meta:[],link:"search:{uni} cost of living support students"}},
   oyster:{pillar:"money",title:"Get an 18+ Student Oyster photocard",body:"30% off adult-rate Travelcards and Bus & Tram Pass season tickets in London. If you also travel by train, a 16–25 Railcard saves a third on rail fares.",meta:[["Saves","30% on season tickets"]],link:"https://tfl.gov.uk/fares/free-and-discounted-travel/18-plus-student-discount"},
-  work:{pillar:"money",title:"Part-time work: know your limits",body:"{workRule} UCL's careers service and the Students' Union both advertise student-friendly jobs.",meta:[],link:"https://www.ucl.ac.uk/careers",uni:"ucl",alt:{body:"{workRule} Your university's careers service and Students' Union usually advertise student-friendly jobs.",link:"search:{uni} careers service student jobs"}},
-  bank:{pillar:"money",title:"Open a UK student bank account",body:"Most offer an interest-free overdraft. Compare them on terms, not freebies, and keep a weekly budget: £{money}/month after rent is about £{weekly}/week.",meta:[],link:"https://www.moneysavingexpert.com/students/student-bank-accounts/"},
+  work:{pillar:"career",title:"Part-time work: know your limits",body:"{workRule} UCL's careers service and the Students' Union both advertise student-friendly jobs.",meta:[],link:"https://www.ucl.ac.uk/careers",uni:"ucl",alt:{body:"{workRule} Your university's careers service and Students' Union usually advertise student-friendly jobs.",link:"search:{uni} careers service student jobs"}},
+  bank:{pillar:"international",title:"Open a UK student bank account",body:"Most offer an interest-free overdraft. Compare them on terms, not freebies, and keep a weekly budget: £{money}/month after rent is about £{weekly}/week.",meta:[],link:"https://www.moneysavingexpert.com/students/student-bank-accounts/"},
   sfe:{pillar:"money",title:"Chase your Student Finance payment",body:"Delays usually come down to enrolment not being confirmed yet or missing details. Check your Student Finance account (SAAS in Scotland), and ask your university to confirm your enrolment.",meta:[["Where","Student Finance England account"]],link:"https://www.gov.uk/student-finance-register-login"},
 
   sra:{pillar:"social",title:"Say hi to your Student Residence Adviser",body:"SRAs live in your halls and are your first point of contact for anything welfare-related, from noise to homesickness. They also run community events.",meta:[["Where","Your halls"]],link:"https://www.ucl.ac.uk/study/support-and-wellbeing/mental-health-and-wellbeing/how-we-can-support-your-mental-health-and-wellbeing",uni:"ucl",alt:{title:"Meet your hall's residence life team",body:"University halls usually have residence assistants or wardens. They're your first point of contact for welfare, noise or homesickness, and they run community events.",meta:[["Where","Your halls"]],link:"search:{uni} residence life team"}},
   societies:{pillar:"social",title:"Join 1–2 Students' Union clubs or societies",body:"The quickest way to build a routine and meet people with shared interests. {schedNote}",meta:[["Where","studentsunionucl.org"]],link:"https://studentsunionucl.org/clubs-societies",uni:"ucl",alt:{title:"Join 1–2 Students' Union clubs or societies",body:"The quickest way to build a routine and meet people with shared interests. {schedNote}",meta:[["Where","{uni} Students' Union"]],link:"search:{uni} students union societies"}},
-  intl:{pillar:"social",title:"UCL International Student Support",body:"Help adjusting to life in the UK, plus workshops and events for international students.",meta:[["Call","020 3108 4043"]],link:"https://www.ucl.ac.uk/students/international-students",uni:"ucl",alt:{title:"{uni}'s international student support",body:"Most universities have a team for international students, covering settling in, visas and events.",meta:[],link:"search:{uni} international student support"}},
+  intl:{pillar:"international",title:"UCL International Student Support",body:"Help adjusting to life in the UK, plus workshops and events for international students.",meta:[["Call","020 3108 4043"]],link:"https://www.ucl.ac.uk/students/international-students",uni:"ucl",alt:{title:"{uni}'s international student support",body:"Most universities have a team for international students, covering settling in, visas and events.",meta:[],link:"search:{uni} international student support"}},
   advice:{pillar:"study",title:"Students' Union Advice Service",body:"Free, confidential advice, independent of UCL, on academic issues, housing contracts and disputes, money and employment rights.",meta:[["Call","020 3549 5232"],["When","Mon–Fri 10:00–16:00"],["Where","25 Gordon Street, 1st floor"]],link:"https://studentsunionucl.org/advice-and-support/find-help/advice-service",uni:"ucl",alt:{title:"Your Students' Union advice service",body:"Most Students' Unions offer free, confidential advice, independent of the university, on academic issues, housing contracts and disputes, and money.",meta:[],link:"search:{uni} students union advice"}},
   ec:{pillar:"study",title:"Apply for Extenuating Circumstances",body:"If something sudden, unexpected and beyond your control (illness, bereavement, a crisis) affects an assessment, you can apply for mitigation such as an extension. Apply through Portico and tell your department promptly.",meta:[["Where","Portico"]],link:"https://www.ucl.ac.uk/study/section-3-short-term-illness-and-other-extenuating-circumstances-0",uni:"ucl",alt:{title:"Apply for extenuating (or mitigating) circumstances",body:"If something sudden and beyond your control affects an assessment, most universities let you apply for mitigation such as an extension. The name and process vary, so check {uni}'s policy and apply promptly.",meta:[],link:"search:{uni} extenuating mitigating circumstances"}},
   emergencyhousing:{pillar:"study",title:"UCL emergency accommodation guidance",body:"If you're an enrolled student and might suddenly have nowhere to stay, UCL can help you find somewhere. Speak to them before it becomes an emergency.",meta:[["Where","UCL Cost of Living Hub"]],link:"https://www.ucl.ac.uk/students/cost-living-hub",uni:"ucl",alt:{title:"Emergency housing help",body:"If you might lose your housing, contact {uni}'s accommodation or student support team now. The housing charity Shelter also gives free advice.",meta:[],link:"https://www.shelter.org.uk"}},
@@ -770,4 +817,14 @@ const R = {
   chaplaincy:{pillar:"social",title:"UCL Chaplaincy",body:"Pastoral support for religious or faith concerns, and for students of any faith or none.",meta:[["Email","chaplaincy@ucl.ac.uk"],["Call","020 3108 8942"]],link:"https://www.ucl.ac.uk/students/support-and-wellbeing-services",uni:"ucl",alt:{title:"{uni}'s chaplaincy or faith centre",body:"Most universities have chaplains or a faith centre offering pastoral support to students of any faith or none.",meta:[],link:"search:{uni} chaplaincy"}},
   lgbt:{pillar:"social",title:"LGBTQ+ support",body:"The UCL 24/7 Student Support Line can connect you with an adviser trained in LGBTQ+ issues. The Students' Union also has an LGBTQ+ Students' Network and a Gender Expression Fund for trans, non-binary and gender non-conforming students.",meta:[["24/7 line","0808 238 0077"]],link:"https://studentsunionucl.org/gender-affirmation-fund",uni:"ucl",alt:{title:"LGBTQ+ support",body:"Most Students' Unions have an LGBTQ+ society or network. Switchboard runs a national LGBTQ+ support line.",meta:[],link:"https://switchboard.lgbt"}},
   tutor:{pillar:"social",title:"Book a chat with your Personal Tutor",body:"Every taught student has one. They can help with settling in and academic worries, and point you to specialist help.",meta:[["How","Email via your department"]],link:"https://www.ucl.ac.uk/students/support-and-wellbeing-services",uni:"ucl",alt:{title:"Book a chat with your Personal Tutor",body:"Most universities give every student a personal or academic tutor. They can help with settling in and academic worries, and point you to specialist help.",meta:[["How","Email via your department"]],link:"search:{uni} personal tutor"}},
+
+  // Careers & opportunities
+  careersvc:{pillar:"career",title:"Book an appointment with UCL Careers",body:"Free one-to-one careers advice from your first year onwards: working out what you want to do, CV and application reviews, and job and internship listings.",meta:[["Where","myUCLCareers"],["Cost","Free"]],link:"https://www.ucl.ac.uk/careers",uni:"ucl",alt:{title:"Book an appointment with {uni}'s careers service",body:"Free one-to-one careers advice while you're a student: working out what you want to do, CV and application reviews, and job and internship listings.",meta:[["Cost","Free"]],link:"search:{uni} careers service appointment"}},
+  internships:{pillar:"career",title:"Start looking for internships and work experience",body:"Many internships at large employers open in the autumn and close early, some before Christmas. In first year, look for insight days and spring weeks, which are designed for first-years.",meta:[["When","Applications from September"],["Cost","Free"]],link:"https://www.prospects.ac.uk/jobs-and-work-experience/work-experience-and-internships"},
+  volunteer:{pillar:"career",title:"Volunteer through Students' Union UCL",body:"One-off and regular volunteering with charities and community projects, from a few hours to a weekly role. It builds skills, confidence and your CV.",meta:[["Where","Students' Union UCL"]],link:"https://studentsunionucl.org/volunteering",uni:"ucl",alt:{title:"Volunteer through your Students' Union",body:"Most Students' Unions list one-off and regular volunteering with local charities and community projects. It builds skills, confidence and your CV.",meta:[["Where","{uni} Students' Union"]],link:"search:{uni} students union volunteering"}},
+
+  // International students
+  evisa:{pillar:"international",title:"Set up your UKVI account and eVisa",body:"The UK has replaced physical visa documents (BRPs) with eVisas. Your UKVI account is how you prove your right to study, rent a home and work. Keep your details up to date, especially if you get a new passport.",meta:[["Where","GOV.UK"],["Cost","Free"]],link:"https://www.gov.uk/get-access-evisa"},
+  visaadvice:{pillar:"international",title:"Get free visa advice from {uni}",body:"Universities have immigration advisers for students on a visa. Ask them before you change course, take a break from your studies, change your working hours or travel for a long time, because these can affect your visa.",meta:[["Cost","Free"]],link:"search:{uni} student immigration visa advice"},
+  ukcisa:{pillar:"international",title:"UKCISA: independent advice for international students",body:"The UK Council for International Student Affairs publishes free, plain-English guides on visas, working, fees and healthcare, and runs an advice line for students.",meta:[["Cost","Free"]],link:"https://www.ukcisa.org.uk"},
 };

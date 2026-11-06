@@ -85,6 +85,23 @@ function plan(a){
   if(has("identity","lgbt")) add("lgbt","keep","You asked about LGBTQ+ support",40);
   if(has("identity","faith")) add("chaplaincy","keep","You asked about faith support",38);
 
+  // Careers & opportunities
+  if(has("career","parttime")) add("work","week","You're looking for a part-time job",56);
+  if(has("career","internship")){ add("internships","week","Many internship deadlines fall in the autumn, so start early",64); add("careersvc","week","They can check your CV and applications before you send them",58); }
+  if(has("career","volunteer")) add("volunteer","week","You're interested in volunteering",50);
+  if(has("career","unsure")) add("careersvc","week","Not sure what you want to do yet? That's exactly what careers advisers help with",54);
+  if(has("circ","first")) add("careersvc","keep","First in your family? Careers advisers can explain internships and graduate schemes",34);
+  if(!out.some(o=>R[o.id].pillar==="career")) add("careersvc","keep","Free while you're a student, and worth knowing about early",12);
+
+  // International students
+  if(intl){
+    if(a.visa==="student"){ add("evisa","week","You're on a Student visa, and your eVisa proves your right to study, rent and work",80); add("visaadvice","keep","Check with them before changing your course, hours or travel plans",40); }
+    if(a.visa==="other") add("visaadvice","week","Not sure about your immigration status? Check it before term gets busy",78);
+    add("intl","keep","Settling-in support and events for international students",30);
+    add("ukcisa","keep","Independent, plain-English guides for international students",26);
+    add("gpintl","keep","How the NHS works, from GP to pharmacy to A&E",22);
+  }
+
   const order={now:0,week:1,keep:2};
   // One SSWS registration covers both disability and mental health; don't show it twice
   if(out.find(o=>o.id==="disability")) { const i=out.findIndex(o=>o.id==="sswsmh"); if(i>-1){ out.find(o=>o.id==="disability").why+=" and a mental health condition, so one registration covers both"; out.splice(i,1);} }
@@ -131,9 +148,9 @@ function fill(text,a){
 /* ───────────────────────── UI ───────────────────────── */
 const app=document.getElementById("app");
 let state={view:"home",step:0,a:{}};
-const pillarName={mental:"Mental health",physical:"Physical health",food:"Food",money:"Money",study:"Home & studies",social:"Social"};
-const pillarShort={mental:"Mental",physical:"Physical",food:"Food",money:"Money",study:"Home",social:"Social"};
-const pillarOrder=["mental","physical","food","money","study","social"];
+const pillarName={mental:"Mental health",physical:"Physical health",food:"Food",money:"Money",study:"Home & studies",social:"Social",career:"Careers",international:"International"};
+const pillarShort={mental:"Mental",physical:"Physical",food:"Food",money:"Money",study:"Home",social:"Social",career:"Careers",international:"Intl"};
+const pillarOrder=["mental","physical","food","money","study","social","career","international"];
 const tierShort={now:"Today",week:"This week",keep:"Keep handy"};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
@@ -273,7 +290,8 @@ function route(){
   if(tool){ render(); window.scrollTo(0,0); }
   else if(location.hash==="#about"){ window.scrollTo(0,0); }
 }
-document.getElementById("svcCount").textContent = Object.keys(R).length + Object.values(UNI_MAP).reduce((n,m)=>n+Object.keys(m).length,0);
+const svcCountEl=document.getElementById("svcCount");
+if(svcCountEl) svcCountEl.textContent = Object.keys(R).length + Object.values(UNI_MAP).reduce((n,m)=>n+Object.keys(m).length,0);
 const LANDING_UNIS = {
   "UCL":{uni:["Counselling Services","24/7 Student Support Line","Financial Assistance Fund","Short Term Loans","Disability & Neurodiversity","Report + Support","Care & estranged bursaries"],su:["Students' Union UCL Advice Service","Essentials Pantry","Sarah Douglas Hardship Fund","Clubs & societies","LGBTQ+ & carers networks"],gp:"Ridgmount Practice (UCL's partner GP)",suName:"Students' Union UCL"},
   "King's":{uni:["Counselling & Mental Health Support","King's Counselling Online (out of hours)","King's Hardship Fund","International Hardship Fund","Money & Housing Advice","Report + Support"],su:["KCLSU Advice","400+ clubs & societies"],gp:"King's College NHS Health Centre",suName:"KCLSU"},
