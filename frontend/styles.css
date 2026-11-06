@@ -253,6 +253,7 @@ p.sec.full,h2.big.full{max-width:none}
 .path .ph{width:100%;font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--brand)}
 .path .arr{color:var(--brand);font-weight:800}
 .path .never{width:100%}
+.aic p.aitag{margin-top:12px;font-weight:700;color:#fff}
 .aic h3{font-size:1.02rem;margin-bottom:6px}.aic p{font-size:.88rem;color:rgba(255,255,255,.75)}
 .aic .eg{margin-top:12px;font-size:.82rem;background:rgba(255,255,255,.1);border-radius:10px;padding:10px 12px;color:#fff;font-style:italic}
 .b2b{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:30px}
