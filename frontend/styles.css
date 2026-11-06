@@ -195,17 +195,34 @@ p.sec.full,h2.big.full{max-width:none}
 .s3.accent{border-left:4px solid var(--brand)}
 .subh{font-size:1.45rem;font-weight:800;letter-spacing:-.4px;line-height:1.2}
 .b2b.two{grid-template-columns:1fr 1fr}
+.stat.feat{border:2px solid var(--brand);background:#F5F8FF;box-shadow:0 6px 20px rgba(37,99,235,.10)}
 .stat .unit{font-size:.85rem;font-weight:700;color:var(--ink);margin:2px 0 10px}
 .team{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:30px}
 .person{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:22px;display:flex;gap:16px}
 .avatar{width:56px;height:56px;border-radius:16px;background:var(--brand);color:#fff;font-weight:800;font-size:1.2rem;display:grid;place-items:center;flex-shrink:0}
-.person h3{font-size:1.05rem}.person .role{font-size:.82rem;color:var(--brand-d);font-weight:700;margin-bottom:6px}
+.person h3{font-size:1.05rem}.person .role{font-size:.82rem;color:var(--brand-d);font-weight:700}
+.person .degree{font-size:.85rem;color:var(--muted);margin-top:2px}
+/* Founder cards: header, divider, three highlights with icons */
+.person{flex-direction:column;gap:0}
+.p-head{display:flex;gap:16px;align-items:center;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.p-items{display:grid;gap:16px;margin-top:18px}
+.p-item{display:grid;grid-template-columns:20px 1fr;gap:12px}
+.p-ic{width:18px;height:18px;margin-top:2px;fill:none;stroke:var(--brand);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.person.mj .p-ic{stroke:#0E6E7E}
+.p-item h4{font-size:.95rem;font-weight:700;color:var(--ink);margin-bottom:2px}
 .person p{font-size:.86rem;color:var(--muted)}
 .final{text-align:center;padding:80px 20px}
 .final h2.big{margin:0 auto}
 .final .cta{justify-content:center}
 footer.site{border-top:1px solid var(--line);padding:26px 0;font-size:.78rem;color:var(--muted)}
 footer.site .wrap{max-width:1080px}
+footer.site{padding:40px 0 30px}
+.ft-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap}
+footer.site .logo{color:var(--ink);font-size:1.3rem}footer.site .logo span{color:var(--brand)}
+.ft-tag{font-size:.88rem;color:var(--muted);margin-top:2px}
+.ft-link{font-size:.88rem;font-weight:700;color:var(--ink);text-decoration:none}.ft-link:hover{color:var(--brand)}
+.ft-bottom{margin-top:24px;padding-top:18px;border-top:1px solid var(--line)}
+.ft-bottom p{margin-top:6px;max-width:720px}
 /* app header back link */
 .back{color:#fff;opacity:.85;text-decoration:none;font-size:.85rem;font-weight:700}
 .back:hover{opacity:1}
