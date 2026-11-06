@@ -213,3 +213,17 @@ footer.site .wrap{max-width:1080px}
   .crisis .lines{grid-template-columns:1fr}
   .card{padding:18px}
 }
+/* ---------- account page ---------- */
+#acct-landing .btn{text-decoration:none;padding:10px 16px}
+a.acct-btn{text-decoration:none;display:inline-block}
+.acct .acct-btn.acct-main{background:#fff;color:var(--brand-d);border-color:#fff;opacity:1}
+.acct-sec{margin-top:26px;padding-top:22px;border-top:1px solid var(--line)}
+.acct-sec h2{font-size:1.05rem}
+.acct-sec form{display:grid;gap:10px;max-width:440px;margin-top:12px}
+.acct-sec input{padding:11px 13px;border:1.5px solid var(--line);border-radius:12px;background:#fff}
+.acct-sec input:focus{outline:none;border-color:var(--brand)}
+.acct-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;align-items:center}
+.acct-msg{font-size:.86rem;color:var(--muted);min-height:1.2em}
+.acct-msg.ok{color:var(--green)} .acct-msg.err{color:var(--red)}
+.btn-danger{background:#fff;border:1.5px solid var(--red);color:var(--red)}
+.btn-danger:hover{background:var(--red-l)}

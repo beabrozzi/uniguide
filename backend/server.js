@@ -13,6 +13,8 @@
      POST   /api/consent         agree to store my answers { university }
      GET    /api/plan            my saved plan
      PUT    /api/plan            save my plan       { answers, done }
+     PUT    /api/account/email     change email      { email, password }
+     PUT    /api/account/password  change password   { currentPassword, newPassword }
      DELETE /api/account         delete my account and all my data
 */
 const path = require("path");
@@ -142,7 +144,7 @@ app.post("/api/consent", requireUser, wrap(async (req, res) => {
 }));
 
 app.get("/api/plan", requireUser, wrap(async (req, res) => {
-  const r = await db.query("SELECT answers, done FROM plans WHERE user_id = $1", [req.userId]);
+  const r = await db.query("SELECT answers, done, updated_at FROM plans WHERE user_id = $1", [req.userId]);
   res.json({ plan: r.rows[0] || null });
 }));
 
@@ -158,6 +160,30 @@ app.put("/api/plan", requireUser, wrap(async (req, res) => {
     [req.userId, JSON.stringify(answers), JSON.stringify(done)]
   );
   res.json({ saved: true });
+}));
+
+app.put("/api/account/email", requireUser, authLimiter, wrap(async (req, res) => {
+  const email = String(req.body.email || "").trim().toLowerCase();
+  if (!emailOk(email)) return res.status(400).json({ error: "Please enter a valid email address." });
+  const u = await db.query("SELECT password_hash FROM users WHERE id = $1", [req.userId]);
+  if (!u.rows[0] || !(await bcrypt.compare(String(req.body.password || ""), u.rows[0].password_hash))) {
+    return res.status(401).json({ error: "Your password is incorrect." });
+  }
+  const taken = await db.query("SELECT 1 FROM users WHERE email = $1 AND id <> $2", [email, req.userId]);
+  if (taken.rows.length) return res.status(409).json({ error: "That email is already used by another account." });
+  await db.query("UPDATE users SET email = $1 WHERE id = $2", [email, req.userId]);
+  res.json({ user: { email } });
+}));
+
+app.put("/api/account/password", requireUser, authLimiter, wrap(async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  if (!passwordOk(newPassword)) return res.status(400).json({ error: "Your new password must be at least 8 characters." });
+  const u = await db.query("SELECT password_hash FROM users WHERE id = $1", [req.userId]);
+  if (!u.rows[0] || !(await bcrypt.compare(String(currentPassword || ""), u.rows[0].password_hash))) {
+    return res.status(401).json({ error: "Your current password is incorrect." });
+  }
+  await db.query("UPDATE users SET password_hash = $1 WHERE id = $2", [await bcrypt.hash(newPassword, 10), req.userId]);
+  res.json({ changed: true });
 }));
 
 app.delete("/api/account", requireUser, wrap(async (req, res) => {

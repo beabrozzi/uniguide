@@ -1,6 +1,8 @@
 /* ───────────────────────── ACCOUNTS ─────────────────────────
-   Talks to the UniGuide server's API (server.js): sign up / sign in with email + password,
-   consent, saved plans and data deletion. Sessions use a secure, httpOnly cookie set by the server.
+   Talks to the UniGuide server's API (backend/server.js):
+   sign up / sign in, consent, saved plans, the "My account" page
+   (view or change your plan, change email, change password), sign out and data deletion.
+   Sessions use a secure, httpOnly cookie set by the server.
    If the API isn't reachable (e.g. the page is opened as a plain file), the app runs in guest mode. */
 
 (function () {
@@ -13,6 +15,7 @@
 
   const h = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const say = (m) => { if (typeof toast === "function") toast(m); };
+  const onAccountPage = () => location.hash === "#account";
 
   async function api(method, url, body) {
     const res = await fetch(url, {
@@ -26,21 +29,19 @@
     return { ok: res.ok, status: res.status, data };
   }
 
-  /* ---------- header bar ---------- */
+  /* ---------- buttons in the landing nav and the tool header ---------- */
   function renderBar() {
-    const el = document.getElementById("acct");
-    if (!el) return;
-    if (!enabled) { el.innerHTML = ""; return; }
+    const tool = document.getElementById("acct");
+    const landing = document.getElementById("acct-landing");
+    if (!enabled) { if (tool) tool.innerHTML = ""; if (landing) landing.innerHTML = ""; return; }
     if (user) {
-      el.innerHTML = `<span class="acct-who" title="${h(user.email)}">${h(user.email)}</span>
-        <button class="acct-btn" id="acctOut">Sign out</button>
-        <button class="acct-btn" id="acctDel">Delete my data</button>`;
-      document.getElementById("acctOut").onclick = signOut;
-      document.getElementById("acctDel").onclick = confirmDelete;
+      if (tool) tool.innerHTML = `<a class="acct-btn acct-main" href="#account">My account</a>`;
+      if (landing) landing.innerHTML = `<a class="btn btn-o" href="#account">My account</a>`;
     } else {
-      el.innerHTML = `<button class="acct-btn acct-main" id="acctIn">Sign in</button>`;
-      document.getElementById("acctIn").onclick = () => showAuth("login");
+      if (tool) tool.innerHTML = `<button class="acct-btn acct-main" data-auth="login">Sign in</button>`;
+      if (landing) landing.innerHTML = `<button class="btn btn-o" data-auth="login">Sign in</button>`;
     }
+    document.querySelectorAll("[data-auth]").forEach((b) => (b.onclick = () => showAuth(b.dataset.auth)));
   }
 
   /* ---------- modals (no browser alerts) ---------- */
@@ -65,7 +66,7 @@
         <div class="row"><button type="button" class="btn btn-g" id="ugCancel">Cancel</button><button class="btn btn-p" type="submit">${signup ? "Create account" : "Sign in"}</button></div>
       </form>
       <p class="sub" id="ugMsg" style="margin-top:8px"></p>
-      <p class="sub" style="margin-top:6px">${signup ? 'Already have an account? <a href="#try" id="ugSwap">Sign in</a>' : 'New here? <a href="#try" id="ugSwap">Create an account</a>'}</p>`);
+      <p class="sub" style="margin-top:6px">${signup ? 'Already have an account? <a href="#" id="ugSwap">Sign in</a>' : 'New here? <a href="#" id="ugSwap">Create an account</a>'}</p>`);
     o.querySelector("#ugCancel").onclick = closeModal;
     o.querySelector("#ugSwap").onclick = (e) => { e.preventDefault(); showAuth(signup ? "login" : "signup"); };
     o.querySelector("#ugAuth").onsubmit = async (e) => {
@@ -80,6 +81,7 @@
       user = r.data.user; consented = !!r.data.consented;
       closeModal();
       renderBar();
+      say(signup ? "Account created" : "Signed in");
       await afterSignIn();
     };
   }
@@ -88,14 +90,15 @@
     await api("POST", "/api/auth/logout");
     user = null; consented = false; loadedOnce = false; lastSaved = "";
     renderBar();
-    if (state.view === "results") renderSaveBox();
     say("Signed out");
+    if (onAccountPage()) location.hash = "#about";
+    else if (state.view === "results") renderSaveBox();
   }
 
   function confirmDelete() {
     const o = modal(`<h2>Delete your data?</h2>
       <p class="sub">This permanently deletes your account, your saved answers and your checklist progress. It can't be undone.</p>
-      <div class="row"><button class="btn btn-g" id="ugNo">Cancel</button><button class="btn btn-p" id="ugYes" style="background:var(--red)">Delete everything</button></div>
+      <div class="row"><button class="btn btn-g" id="ugNo">Cancel</button><button class="btn btn-danger" id="ugYes">Delete everything</button></div>
       <p class="sub" id="ugMsg" style="margin-top:8px"></p>`);
     o.querySelector("#ugNo").onclick = closeModal;
     o.querySelector("#ugYes").onclick = async () => {
@@ -105,9 +108,108 @@
       user = null; consented = false; loadedOnce = false; lastSaved = "";
       closeModal();
       renderBar();
-      if (state.view === "results") renderSaveBox();
       say("Your data has been deleted");
+      location.hash = "#about";
     };
+  }
+
+  /* ---------- "My account" page ---------- */
+  function showTool() {
+    document.getElementById("landing").style.display = "none";
+    document.getElementById("tool").style.display = "";
+    window.scrollTo(0, 0);
+  }
+
+  async function showAccount() {
+    if (!enabled) { location.hash = "#about"; return; }
+    showTool();
+    const app = document.getElementById("app");
+    if (!user) {
+      app.innerHTML = `<div class="card"><h1>My account</h1>
+        <p class="sub">Sign in to see your saved plan and account settings.</p>
+        <div class="acct-row"><button class="btn btn-p" id="accIn">Sign in</button><button class="btn btn-o" id="accUp">Create an account</button></div></div>`;
+      app.querySelector("#accIn").onclick = () => showAuth("login");
+      app.querySelector("#accUp").onclick = () => showAuth("signup");
+      return;
+    }
+    app.innerHTML = `<div class="card"><h1>My account</h1><p class="sub">Loading…</p></div>`;
+    const r = await api("GET", "/api/plan");
+    const plan = r.ok ? r.data.plan : null;
+    const uni = plan && plan.answers && plan.answers.uni;
+    const saved = plan && plan.updated_at ? new Date(plan.updated_at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "";
+    const doneCount = plan && plan.done ? plan.done.length : 0;
+
+    app.innerHTML = `<div class="card">
+      <h1>My account</h1>
+      <p class="sub">Signed in as <b>${h(user.email)}</b></p>
+
+      <div class="acct-sec">
+        <h2>My plan</h2>
+        ${plan ? `<p class="sub">${uni ? h(uni) + ". " : ""}Last saved ${h(saved)}. ${doneCount} ${doneCount === 1 ? "action" : "actions"} ticked off.</p>
+          <div class="acct-row"><button class="btn btn-p" id="accView">View my plan</button><button class="btn btn-o" id="accEdit">Change my answers</button></div>`
+        : `<p class="sub">You haven't saved a plan yet.</p>
+          <div class="acct-row"><a class="btn btn-p" href="#try" style="text-decoration:none">Make my plan</a></div>`}
+      </div>
+
+      <div class="acct-sec">
+        <h2>Change email</h2>
+        <form id="accEmail">
+          <input type="email" name="email" required placeholder="New email address" autocomplete="email">
+          <input type="password" name="password" required placeholder="Your current password" autocomplete="current-password">
+          <div class="acct-row" style="margin-top:2px"><button class="btn btn-o" type="submit">Save new email</button><span class="acct-msg" id="accEmailMsg"></span></div>
+        </form>
+      </div>
+
+      <div class="acct-sec">
+        <h2>Change password</h2>
+        <form id="accPass">
+          <input type="password" name="currentPassword" required placeholder="Current password" autocomplete="current-password">
+          <input type="password" name="newPassword" required minlength="8" placeholder="New password (at least 8 characters)" autocomplete="new-password">
+          <div class="acct-row" style="margin-top:2px"><button class="btn btn-o" type="submit">Save new password</button><span class="acct-msg" id="accPassMsg"></span></div>
+        </form>
+      </div>
+
+      <div class="acct-sec">
+        <h2>Privacy</h2>
+        <p class="sub">Only you can see your answers. <a href="privacy.html" target="_blank">Read the privacy notice</a>.</p>
+        <div class="acct-row"><button class="btn btn-o" id="accOut">Sign out</button><button class="btn btn-danger" id="accDel">Delete my data</button></div>
+      </div>
+    </div>`;
+
+    const openPlan = (view) => {
+      state.a = { ...defaults(), ...plan.answers };
+      state.done = new Set(plan.done || []);
+      state.persona = null;
+      state.view = view;
+      state.step = 0;
+      lastSaved = JSON.stringify({ answers: state.a, done: [...state.done] });
+      location.hash = "#try";
+    };
+    const v = app.querySelector("#accView"); if (v) v.onclick = () => openPlan("results");
+    const ed = app.querySelector("#accEdit"); if (ed) ed.onclick = () => openPlan("form");
+
+    app.querySelector("#accEmail").onsubmit = async (e) => {
+      e.preventDefault();
+      const f = e.target, msg = app.querySelector("#accEmailMsg");
+      msg.className = "acct-msg"; msg.textContent = "Saving…";
+      const r2 = await api("PUT", "/api/account/email", { email: f.email.value.trim(), password: f.password.value });
+      if (!r2.ok) { msg.className = "acct-msg err"; msg.textContent = r2.data.error || "Couldn't change your email."; return; }
+      user = r2.data.user; renderBar();
+      msg.className = "acct-msg ok"; msg.textContent = "Email changed.";
+      app.querySelector(".card > .sub b").textContent = user.email;
+      f.reset();
+    };
+    app.querySelector("#accPass").onsubmit = async (e) => {
+      e.preventDefault();
+      const f = e.target, msg = app.querySelector("#accPassMsg");
+      msg.className = "acct-msg"; msg.textContent = "Saving…";
+      const r2 = await api("PUT", "/api/account/password", { currentPassword: f.currentPassword.value, newPassword: f.newPassword.value });
+      if (!r2.ok) { msg.className = "acct-msg err"; msg.textContent = r2.data.error || "Couldn't change your password."; return; }
+      msg.className = "acct-msg ok"; msg.textContent = "Password changed.";
+      f.reset();
+    };
+    app.querySelector("#accOut").onclick = signOut;
+    app.querySelector("#accDel").onclick = confirmDelete;
   }
 
   /* ---------- the save box shown on each plan ---------- */
@@ -116,13 +218,14 @@
     if (!el) return;
     if (!enabled || state.persona) { el.innerHTML = ""; return; } // sample students are never saved
     if (!user) {
-      el.innerHTML = `<div class="savecard ask"><div><b>Want to keep this plan?</b><small>Create a free account to save it and tick things off over the next few weeks.</small></div><button class="btn btn-p" id="ugSaveIn">Save my plan</button></div>`;
-      el.querySelector("#ugSaveIn").onclick = () => showAuth("signup");
+      el.innerHTML = `<div class="savecard ask"><div><b>Want to keep this plan?</b><small>Sign in or create a free account to save it and tick things off over the next few weeks.</small></div>
+        <div class="acct-row" style="margin-top:0"><button class="btn btn-o" data-save="login">Sign in</button><button class="btn btn-p" data-save="signup">Create account</button></div></div>`;
+      el.querySelectorAll("[data-save]").forEach((b) => (b.onclick = () => showAuth(b.dataset.save)));
     } else if (!consented) {
       el.innerHTML = `<div class="savecard ask"><div><b>Save this plan to your account?</b><small>Your answers include health information. Only you can see them, and you can delete them at any time. <a href="privacy.html" target="_blank">Privacy notice</a></small></div><button class="btn btn-p" id="ugConsent">I agree, save it</button></div>`;
       el.querySelector("#ugConsent").onclick = giveConsent;
     } else {
-      el.innerHTML = `<div class="savecard"><div><b>${state.welcome ? "Welcome back! Here's your saved plan." : "Saved to your account ✓"}</b><small>Changes and checklist progress save automatically.</small></div></div>`;
+      el.innerHTML = `<div class="savecard"><div><b>${state.welcome ? "Welcome back! Here's your saved plan." : "Saved to your account ✓"}</b><small>Changes and checklist progress save automatically. <a href="#account">My account</a></small></div></div>`;
     }
   }
 
@@ -144,14 +247,15 @@
     else if (r.status === 401) { user = null; renderBar(); renderSaveBox(); }
   }
 
-  /* ---------- restore a saved plan after sign-in ---------- */
+  /* ---------- after signing in ---------- */
   async function afterSignIn() {
+    if (onAccountPage()) { showAccount(); return; }
     if (!loadedOnce) {
       loadedOnce = true;
       const r = await api("GET", "/api/plan");
-      // Only restore if they're not in the middle of looking at a new plan of their own
-      const viewingOwn = state.view === "results" && !state.persona;
+      const viewingOwn = state.view === "results" && !state.persona && location.hash === "#try";
       if (r.ok && r.data.plan && r.data.plan.answers && !viewingOwn) {
+        // Signed in with a saved plan: take them straight to it
         state.a = { ...defaults(), ...r.data.plan.answers };
         state.done = new Set(r.data.plan.done || []);
         state.persona = null;
@@ -162,7 +266,7 @@
         return;
       }
     }
-    if (state.view === "results") { renderSaveBox(); savePlan(); }
+    if (location.hash === "#try" && state.view === "results") { renderSaveBox(); savePlan(); }
   }
 
   /* ---------- start ---------- */
@@ -176,6 +280,12 @@
     },
   };
 
+  // app.js handles #try and the landing page; this adds #account
+  window.addEventListener("hashchange", () => {
+    if (onAccountPage()) showAccount();
+    else if (location.hash === "#try" && user && !loadedOnce) afterSignIn(); // first time opening the tool this visit: bring back their plan
+  });
+
   (async function init() {
     if (location.protocol === "file:") return; // opened as a file: guest mode
     try {
@@ -186,7 +296,8 @@
     const me = await api("GET", "/api/me");
     if (me.ok && me.data.user) { user = me.data.user; consented = !!me.data.consented; }
     renderBar();
-    if (user) await afterSignIn();
+    if (onAccountPage()) { showAccount(); return; }
+    if (user && location.hash === "#try") await afterSignIn();
     else if (state.view === "results") renderSaveBox();
   })();
 })();
