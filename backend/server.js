@@ -13,6 +13,7 @@
      POST   /api/consent         agree to store my answers { university }
      GET    /api/plan            my saved plan
      PUT    /api/plan            save my plan       { answers, done }
+     DELETE /api/plan            delete my saved plan (the account stays)
      PUT    /api/account/email     change email      { email, password }
      PUT    /api/account/password  change password   { currentPassword, newPassword }
      DELETE /api/account         delete my account and all my data
@@ -195,6 +196,13 @@ app.put("/api/plan", requireUser, wrap(async (req, res) => {
     [req.userId, JSON.stringify(safeAnswers(answers)), JSON.stringify(safeDone(done))]
   );
   res.json({ saved: true });
+}));
+
+// Delete only the saved plan and withdraw consent; the account stays
+app.delete("/api/plan", requireUser, wrap(async (req, res) => {
+  await db.query("DELETE FROM plans WHERE user_id = $1", [req.userId]);
+  await db.query("UPDATE profiles SET consent_at = NULL, university = NULL WHERE user_id = $1", [req.userId]);
+  res.json({ deleted: true });
 }));
 
 app.put("/api/account/email", requireUser, authLimiter, wrap(async (req, res) => {

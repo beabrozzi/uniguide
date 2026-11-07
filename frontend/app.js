@@ -195,7 +195,7 @@ function form(){
   app.innerHTML=`
   <div class="card">
     <div class="progress">${STEPS.map((_,i)=>`<i class="${i<=state.step?"on":""}"></i>`).join("")}</div>
-    <div class="steplbl">Step ${state.step+1} of ${STEPS.length}</div>
+    <div class="steplbl">${state.only?"Updating one section":`Step ${state.step+1} of ${STEPS.length}`}</div>
     <h1>${s.title}</h1>
     <p class="reqnote">All questions are required unless marked optional.</p>
     ${s.qs.filter(visible).map(q=>{ const miss=state.showErr&&!answered(q); return `<div class="q${miss?" missing":""}" id="q-${q.id}">
@@ -217,8 +217,8 @@ function form(){
     </div>`; }).join("")}
     <p class="privnote">🔒 Your answers are used to personalise your plan. You can explore without creating an account, and we'll always ask for your consent before saving anything. Health answers are never saved.</p>
     <div class="nav">
-      <button class="btn btn-g" id="back">← ${state.step===0?"Home":"Back"}</button>
-      <button class="btn btn-p" id="next">${state.step===STEPS.length-1?"Show my plan →":"Next →"}</button>
+      <button class="btn btn-g" id="back">← ${state.only?"All sections":state.step===0?"Home":"Back"}</button>
+      <button class="btn btn-p" id="next">${state.only?"Update my plan →":state.step===STEPS.length-1?"Show my plan →":"Next →"}</button>
     </div>
   </div>`;
   app.querySelectorAll(".chip[data-unk]").forEach(c=>{ const go=()=>{ state.a[c.dataset.unk]=!state.a[c.dataset.unk]; form(); }; c.onclick=go; c.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); go(); } }; });
@@ -231,11 +231,11 @@ function form(){
   const cg=document.getElementById("crisisGo"); if(cg) cg.onclick=()=>{ state.view="results"; state.persona=null; render(); };
   const us=document.getElementById("unisel"); if(us) us.onchange=()=>{ state.a.uni=us.value; form(); };
   s.qs.filter(q=>q.type==="range"&&visible(q)).forEach(q=>{ const r=document.getElementById("r-"+q.id); r.oninput=()=>{ state.a[q.id]=+r.value; document.getElementById("v-"+q.id).innerHTML=`${q.unit}${r.value}${q.id==="money"&&+r.value>=q.max?"+":""} <small style="font-weight:600;color:var(--muted)">${q.suffix}</small>`; }; });
-  document.getElementById("back").onclick=()=>{ state.showErr=false; if(state.step===0){state.view="home";} else state.step--; render(); };
+  document.getElementById("back").onclick=()=>{ state.showErr=false; if(state.only){state.view="pick";} else if(state.step===0){state.view="home";} else state.step--; render(); };
   document.getElementById("next").onclick=()=>{
     if(!s.qs.every(answered)){ state.showErr=true; form(); const first=s.qs.find(q=>!answered(q)); const el=first&&document.getElementById("q-"+first.id); if(el) el.scrollIntoView({behavior:"smooth",block:"center"}); return; }
     state.showErr=false;
-    if(state.step===STEPS.length-1) {state.view="results"; state.persona=null;} else state.step++; render(); };
+    if(state.only||state.step===STEPS.length-1) {state.view="results"; state.persona=null; state.only=false;} else state.step++; render(); };
 }
 
 function results(keep){
@@ -265,8 +265,11 @@ function results(keep){
       <div class="ln"><b>999</b>Emergency services</div>
     </div></div>`:""}
   <div class="card">
-    <button class="linkbtn backbtn" id="backTop">${state.persona?"← Back to examples":"← Change my answers"}</button>
-    <h1>${state.persona?esc(state.persona.split(",")[0])+"'s plan":"Your plan"}</h1>
+    ${state.persona?`<button class="linkbtn backbtn" id="backTop">← Back to examples</button>`:""}
+    <div class="plan-head">
+      <h1>${state.persona?esc(state.persona.split(",")[0])+"'s plan":"Your plan"}</h1>
+      <button class="btn btn-o" id="edit">${state.persona?`Change ${esc(state.persona.split(",")[0])}'s answers`:"Change my answers"}</button>
+    </div>
     <p class="sub"><b>${p.length} recommended actions</b>, with the most important ones first.</p>
     <div id="savebox"></div>
     <div class="toggle"><button id="vu" class="${mode==="urgency"?"on":""}">By urgency</button><button id="va" class="${mode==="area"?"on":""}">By area</button><button id="vc" class="${mode==="check"?"on":""}">Checklist</button></div>
@@ -282,7 +285,6 @@ function results(keep){
       ${next?`<button class="btn btn-o nextgrp" id="nextGrp" data-k="${next[0]}">Next${mode==="area"?" area":""}: ${next[1]} (${next[2]}) →</button>`:""}</div>`; })()}
     <div class="actions">
       <button class="btn btn-p" id="copy">Copy my plan</button>
-      ${state.persona?`<button class="btn btn-o" id="edit">Change ${esc(state.persona.split(",")[0])}'s answers</button>`:`<button class="btn btn-o" id="edit">Change my answers</button>`}
       <button class="btn btn-g" id="home">Try another student</button>
     </div>
     <p class="foot">UniGuide prototype. Not an official university service and not medical advice. Details were checked against official pages in November 2026; always confirm on the linked page.</p>
@@ -295,9 +297,9 @@ function results(keep){
   app.querySelectorAll(".segb").forEach(b=>b.onclick=()=>{ state.tier=b.dataset.tier; results(true); });
   const ng=document.getElementById("nextGrp"); if(ng) ng.onclick=()=>{ if(mode==="area") state.area=ng.dataset.k; else state.tier=ng.dataset.k; results(true); const t=document.querySelector(mode==="area"?".atabs":".seg"); if(t) t.scrollIntoView({behavior:"smooth",block:"start"}); };
   app.querySelectorAll(".chk input").forEach(c=>c.onchange=()=>{ c.checked?state.done.add(c.dataset.id):state.done.delete(c.dataset.id); results(true); });
-  document.getElementById("backTop").onclick=()=>{ if(state.persona){ state={view:"home",step:0,a:{},mode:state.mode,showEx:true}; } else { state.view="form"; state.step=0; } render(); };
+  const bt=document.getElementById("backTop"); if(bt) bt.onclick=()=>{ state={view:"home",step:0,a:{},mode:state.mode,showEx:true}; render(); };
   document.getElementById("home").onclick=()=>{ state={view:"home",step:0,a:{},mode:state.mode,showEx:true}; render(); };
-  document.getElementById("edit").onclick=()=>{ state.view="form"; state.step=0; render(); };
+  document.getElementById("edit").onclick=()=>{ state.view="pick"; render(); };
   document.getElementById("copy").onclick=async()=>{
     const txt=["My UniGuide plan",""].concat(tiers.flatMap(([t,h])=>{ const it=p.filter(x=>x.tier===t); return it.length?[h.toUpperCase(),...it.map(x=>{ const r=svc(x.id,a); return `• ${fill(r.title,a)} (${r.meta.map(m=>fill(m[1],a)).join(", ")}) ${linkFor(r,a)}`+(r.steps||[]).map((t,i)=>`\n    ${i+1}. ${fill(t,a)}`).join(""); }),""]:[]; })).join("\n");
     try{ await navigator.clipboard.writeText(txt); toast("Plan copied"); }catch(e){ toast("Couldn't copy here. Select the text instead"); }
@@ -322,7 +324,24 @@ function checklist(p,a){
 }
 
 function toast(m){ const t=document.getElementById("toast"); t.textContent=m; t.classList.add("on"); setTimeout(()=>t.classList.remove("on"),1800); }
-function render(){ ({home,form,results})[state.view](); }
+// Pick one section to update, then go straight back to the plan
+function pick(){
+  app.innerHTML=`
+  <div class="card">
+    <h1>Update your answers</h1>
+    <p class="sub">Choose the section you want to change. Your other answers stay the same.</p>
+    <div class="personas">${STEPS.map((s,i)=>`<button class="persona" data-step="${i}"><b>${esc(s.title)}</b><small>${s.qs.filter(visible).length} questions</small></button>`).join("")}</div>
+    <div class="nav">
+      <button class="btn btn-g" id="back">← Back to my plan</button>
+      <button class="btn btn-o" id="all">Go through all questions</button>
+    </div>
+  </div>`;
+  app.querySelectorAll(".persona[data-step]").forEach(b=>b.onclick=()=>{ state.step=+b.dataset.step; state.only=true; state.showErr=false; state.view="form"; render(); window.scrollTo(0,0); });
+  document.getElementById("back").onclick=()=>{ state.view="results"; render(); };
+  document.getElementById("all").onclick=()=>{ state.step=0; state.only=false; state.view="form"; render(); };
+}
+
+function render(){ ({home,form,results,pick})[state.view](); }
 function route(){
   const tool = location.hash==="#try";
   document.getElementById("landing").style.display = tool?"none":"";

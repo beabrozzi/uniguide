@@ -130,8 +130,27 @@
   // Forget the answers and ticks held in the page, so the next plan starts fresh
   function resetTool() { state = { view: "home", step: 0, a: {}, mode: state.mode }; }
 
+  // Deletes the saved plan only: answers, ticks and consent. The account stays.
+  function confirmDeletePlan() {
+    const o = modal(`<h2>Delete your saved plan?</h2>
+      <p class="sub">This permanently deletes your saved answers and checklist progress. Your account stays, so you can make a new plan any time.</p>
+      <div class="row"><button class="btn btn-g" id="ugNo">Cancel</button><button class="btn btn-danger" id="ugYes">Delete my plan</button></div>
+      <p class="sub" id="ugMsg" style="margin-top:8px"></p>`);
+    o.querySelector("#ugNo").onclick = closeModal;
+    o.querySelector("#ugYes").onclick = async () => {
+      o.querySelector("#ugMsg").textContent = "Deleting…";
+      const r = await api("DELETE", "/api/plan");
+      if (!r.ok) { o.querySelector("#ugMsg").textContent = r.data.error || "Something went wrong."; return; }
+      consented = false; lastSaved = "";
+      resetTool();
+      closeModal();
+      say("Your plan has been deleted");
+      showAccount();
+    };
+  }
+
   function confirmDelete() {
-    const o = modal(`<h2>Delete your data?</h2>
+    const o = modal(`<h2>Delete your account?</h2>
       <p class="sub">This permanently deletes your account, your saved answers and your checklist progress. It can't be undone.</p>
       <div class="row"><button class="btn btn-g" id="ugNo">Cancel</button><button class="btn btn-danger" id="ugYes">Delete everything</button></div>
       <p class="sub" id="ugMsg" style="margin-top:8px"></p>`);
@@ -144,7 +163,7 @@
       resetTool();
       closeModal();
       renderBar();
-      say("Your data has been deleted");
+      say("Your account has been deleted");
       location.hash = "#about";
     };
   }
@@ -182,7 +201,7 @@
       <div class="acct-sec">
         <h2>My plan</h2>
         ${plan ? `<p class="sub">${uni ? h(uni) + ". " : ""}Last saved ${h(saved)}. ${doneCount} ${doneCount === 1 ? "action" : "actions"} ticked off.</p>
-          <div class="acct-row"><button class="btn btn-p" id="accView">View my plan</button><button class="btn btn-o" id="accEdit">Change my answers</button></div>`
+          <div class="acct-row"><button class="btn btn-p" id="accView">View my plan</button><button class="btn btn-o" id="accEdit">Update my answers</button></div>`
         : `<p class="sub">You haven't saved a plan yet.</p>
           <div class="acct-row"><a class="btn btn-p" href="#try" style="text-decoration:none">Make my plan</a></div>`}
       </div>
@@ -208,7 +227,7 @@
       <div class="acct-sec">
         <h2>Privacy</h2>
         <p class="sub">Only you can see your saved answers. We never save health answers. <a href="privacy.html" target="_blank">Read the privacy notice</a>.</p>
-        <div class="acct-row"><button class="btn btn-o" id="accOut">Sign out</button><button class="btn btn-danger" id="accDel">Delete my data</button></div>
+        <div class="acct-row"><button class="btn btn-o" id="accOut">Sign out</button>${plan ? `<button class="btn btn-danger" id="accDelPlan">Delete my plan</button>` : ""}<button class="btn btn-danger" id="accDel">Delete my account</button></div>
       </div>
     </div>`;
 
@@ -222,7 +241,7 @@
       location.hash = "#try";
     };
     const v = app.querySelector("#accView"); if (v) v.onclick = () => openPlan("results");
-    const ed = app.querySelector("#accEdit"); if (ed) ed.onclick = () => openPlan("form");
+    const ed = app.querySelector("#accEdit"); if (ed) ed.onclick = () => openPlan("pick");
 
     app.querySelector("#accEmail").onsubmit = async (e) => {
       e.preventDefault();
@@ -246,6 +265,7 @@
     };
     app.querySelector("#accOut").onclick = signOut;
     app.querySelector("#accDel").onclick = confirmDelete;
+    const dp = app.querySelector("#accDelPlan"); if (dp) dp.onclick = confirmDeletePlan;
   }
 
   /* ---------- the save box shown on each plan ---------- */

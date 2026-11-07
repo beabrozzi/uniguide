@@ -353,3 +353,7 @@ a.acct-btn{text-decoration:none;display:inline-block}
 /* Trial-version disclaimer at the top of every page */
 .trial-banner{background:var(--brand-l);color:var(--ink);border-bottom:1px solid #C7D7FB;font-size:.82rem;line-height:1.45;text-align:center;padding:8px 16px}
 .trial-banner a{font-weight:700}
+
+/* Plan title with the "Change my answers" button beside it */
+.plan-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.plan-head h1{margin:0}
