@@ -120,11 +120,15 @@
   async function signOut() {
     await api("POST", "/api/auth/logout");
     user = null; consented = false; loadedOnce = false; lastSaved = "";
+    resetTool();
     renderBar();
     say("Signed out");
     if (onAccountPage()) location.hash = "#about";
-    else if (state.view === "results") renderSaveBox();
+    else if (location.hash === "#try") render();
   }
+
+  // Forget the answers and ticks held in the page, so the next plan starts fresh
+  function resetTool() { state = { view: "home", step: 0, a: {}, mode: state.mode }; }
 
   function confirmDelete() {
     const o = modal(`<h2>Delete your data?</h2>
@@ -137,6 +141,7 @@
       const r = await api("DELETE", "/api/account");
       if (!r.ok) { o.querySelector("#ugMsg").textContent = r.data.error || "Something went wrong."; return; }
       user = null; consented = false; loadedOnce = false; lastSaved = "";
+      resetTool();
       closeModal();
       renderBar();
       say("Your data has been deleted");

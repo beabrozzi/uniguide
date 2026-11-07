@@ -349,3 +349,7 @@ a.acct-btn{text-decoration:none;display:inline-block}
 .acct-msg.ok{color:var(--green)} .acct-msg.err{color:var(--red)}
 .btn-danger{background:#fff;border:1.5px solid var(--red);color:var(--red)}
 .btn-danger:hover{background:var(--red-l)}
+
+/* Trial-version disclaimer at the top of every page */
+.trial-banner{background:var(--brand-l);color:var(--ink);border-bottom:1px solid #C7D7FB;font-size:.82rem;line-height:1.45;text-align:center;padding:8px 16px}
+.trial-banner a{font-weight:700}
