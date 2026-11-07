@@ -1,5 +1,5 @@
 /* ───────────────────────── ACCOUNTS ─────────────────────────
-   Talks to the UniGuide server's API (backend/server.js):
+   Talks to the UniMeadow server's API (backend/server.js):
    sign up / sign in, consent, saved plans, the "My account" page
    (view or change your plan, change email, change password), sign out and data deletion.
    Sessions use a secure, httpOnly cookie set by the server.
@@ -238,6 +238,7 @@
       state.view = view;
       state.step = 0;
       lastSaved = JSON.stringify(savable(state.a, state.done));
+      loadedOnce = true; // the plan is already loaded, so don't load it again over the section picker
       location.hash = "#try";
     };
     const v = app.querySelector("#accView"); if (v) v.onclick = () => openPlan("results");

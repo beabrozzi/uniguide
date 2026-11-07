@@ -1,7 +1,7 @@
 {
   "name": "uniguide",
   "version": "1.0.0",
-  "description": "UniGuide: personalised support plans for new university students",
+  "description": "UniMeadow: personalised support plans for new university students",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
