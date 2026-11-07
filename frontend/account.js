@@ -13,6 +13,20 @@
   let saveTimer = null;
   let lastSaved = "";
 
+  // Health answers are never sent to the server: only these are saved.
+  // Keep in sync with SAFE_ANSWERS / SAFE_DONE in backend/server.js.
+  const SAFE_ANSWERS = ["uni", "origin", "visa", "living", "area", "circ", "food", "foodUnknown",
+    "money", "moneyissue", "housing", "course", "career", "schedule", "social"];
+  const SAFE_DONE = ["careersvc", "internships", "volunteer", "work", "batch", "catered", "pantry", "tgtg",
+    "bank", "evisa", "intl", "ukcisa", "visaadvice", "carebursary", "col", "debt", "estrangedbursary", "faf",
+    "oyster", "railcard", "sarah", "sfe", "stl", "carers", "resteam", "societies", "sra", "tutor",
+    "advice", "ec", "emergencyhousing"];
+  function savable(a, done) {
+    const answers = {};
+    SAFE_ANSWERS.forEach((k) => { if (a && a[k] !== undefined) answers[k] = a[k]; });
+    return { answers, done: [...(done || [])].filter((d) => SAFE_DONE.includes(d)) };
+  }
+
   const h = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const say = (m) => { if (typeof toast === "function") toast(m); };
   const onAccountPage = () => location.hash === "#account";
@@ -188,7 +202,7 @@
 
       <div class="acct-sec">
         <h2>Privacy</h2>
-        <p class="sub">Only you can see your answers. <a href="privacy.html" target="_blank">Read the privacy notice</a>.</p>
+        <p class="sub">Only you can see your saved answers. We never save health answers. <a href="privacy.html" target="_blank">Read the privacy notice</a>.</p>
         <div class="acct-row"><button class="btn btn-o" id="accOut">Sign out</button><button class="btn btn-danger" id="accDel">Delete my data</button></div>
       </div>
     </div>`;
@@ -199,7 +213,7 @@
       state.persona = null;
       state.view = view;
       state.step = 0;
-      lastSaved = JSON.stringify({ answers: state.a, done: [...state.done] });
+      lastSaved = JSON.stringify(savable(state.a, state.done));
       location.hash = "#try";
     };
     const v = app.querySelector("#accView"); if (v) v.onclick = () => openPlan("results");
@@ -239,10 +253,10 @@
         <div class="acct-row" style="margin-top:0"><button class="btn btn-o" data-save="login">Sign in</button><button class="btn btn-p" data-save="signup">Create account</button></div></div>`;
       el.querySelectorAll("[data-save]").forEach((b) => (b.onclick = () => showAuth(b.dataset.save)));
     } else if (!consented) {
-      el.innerHTML = `<div class="savecard ask"><div><b>Save this plan to your account?</b><small>Includes health info · only you can see it · <a href="privacy.html" target="_blank">Privacy notice</a></small></div><button class="btn btn-p" id="ugConsent">I agree, save it</button></div>`;
+      el.innerHTML = `<div class="savecard ask"><div><b>Save this plan to your account?</b><small>Saves your university, money, housing and study answers. Health answers are never saved. <a href="privacy.html" target="_blank">Privacy notice</a></small></div><button class="btn btn-p" id="ugConsent">I agree, save it</button></div>`;
       el.querySelector("#ugConsent").onclick = giveConsent;
     } else {
-      el.innerHTML = `<div class="savecard"><div><b>${state.welcome ? "Welcome back! Here's your saved plan." : "Saved to your account ✓"}</b><small>Changes and checklist progress save automatically. <a href="#account">My account</a></small></div></div>`;
+      el.innerHTML = `<div class="savecard"><div><b>${state.welcome ? "Welcome back! Here's your saved plan." : "Saved to your account ✓"}</b><small>Changes and checklist progress save automatically. Health answers are never saved, so re-add them under "Change my answers" for health suggestions. <a href="#account">My account</a></small></div></div>`;
     }
   }
 
@@ -256,7 +270,7 @@
 
   async function savePlan() {
     if (!user || !consented || state.persona || state.view !== "results") return;
-    const payload = { answers: state.a, done: [...(state.done || [])] };
+    const payload = savable(state.a, state.done);
     const key = JSON.stringify(payload);
     if (key === lastSaved) return;
     const r = await api("PUT", "/api/plan", payload);
@@ -278,7 +292,7 @@
         state.persona = null;
         state.view = "results";
         state.welcome = true;
-        lastSaved = JSON.stringify({ answers: state.a, done: [...state.done] });
+        lastSaved = JSON.stringify(savable(state.a, state.done));
         if (location.hash !== "#try") location.hash = "#try"; else render();
         return;
       }

@@ -143,6 +143,41 @@ app.post("/api/consent", requireUser, wrap(async (req, res) => {
   res.json({ consented: true });
 }));
 
+/* ---------- No health data is ever stored ----------
+   We only keep answers on this safe list. Anything else (mood, mental health,
+   GP, conditions, allergies, diet, communities) is dropped before saving.
+   Ticked checklist items that would reveal health or other special-category
+   data (e.g. "Register with disability support") are dropped too.
+   Keep in sync with SAFE_ANSWERS / SAFE_DONE in frontend/account.js. */
+const SAFE_ANSWERS = ["uni", "origin", "visa", "living", "area", "circ", "food", "foodUnknown",
+  "money", "moneyissue", "housing", "course", "career", "schedule", "social"];
+const SAFE_DONE = ["careersvc", "internships", "volunteer", "work",
+  "batch", "catered", "pantry", "tgtg",
+  "bank", "evisa", "intl", "ukcisa", "visaadvice",
+  "carebursary", "col", "debt", "estrangedbursary", "faf", "oyster", "railcard", "sarah", "sfe", "stl",
+  "carers", "resteam", "societies", "sra", "tutor",
+  "advice", "ec", "emergencyhousing"];
+function safeAnswers(answers) {
+  const out = {};
+  for (const k of SAFE_ANSWERS) if (answers && answers[k] !== undefined) out[k] = answers[k];
+  return out;
+}
+const safeDone = (done) => (Array.isArray(done) ? done.filter((d) => SAFE_DONE.includes(d)) : []);
+
+// Removes health data from plans saved before this rule existed. Runs on every start.
+async function scrubSavedPlans() {
+  const r = await db.query("SELECT user_id, answers, done FROM plans");
+  for (const row of r.rows) {
+    const a = typeof row.answers === "string" ? JSON.parse(row.answers) : row.answers;
+    const d = typeof row.done === "string" ? JSON.parse(row.done) : row.done;
+    const a2 = safeAnswers(a), d2 = safeDone(d);
+    if (JSON.stringify(a2) !== JSON.stringify(a) || JSON.stringify(d2) !== JSON.stringify(d)) {
+      await db.query("UPDATE plans SET answers = $1, done = $2 WHERE user_id = $3",
+        [JSON.stringify(a2), JSON.stringify(d2), row.user_id]);
+    }
+  }
+}
+
 app.get("/api/plan", requireUser, wrap(async (req, res) => {
   const r = await db.query("SELECT answers, done, updated_at FROM plans WHERE user_id = $1", [req.userId]);
   res.json({ plan: r.rows[0] || null });
@@ -157,7 +192,7 @@ app.put("/api/plan", requireUser, wrap(async (req, res) => {
   await db.query(
     `INSERT INTO plans (user_id, answers, done, updated_at) VALUES ($1, $2, $3, NOW())
      ON CONFLICT (user_id) DO UPDATE SET answers = EXCLUDED.answers, done = EXCLUDED.done, updated_at = NOW()`,
-    [req.userId, JSON.stringify(answers), JSON.stringify(done)]
+    [req.userId, JSON.stringify(safeAnswers(answers)), JSON.stringify(safeDone(done))]
   );
   res.json({ saved: true });
 }));
@@ -204,5 +239,6 @@ app.use((req, res) => res.sendFile(path.join(FRONTEND, "index.html")));
 
 /* ---------- Start ---------- */
 db.migrate()
+  .then(() => scrubSavedPlans())
   .then(() => app.listen(PORT, () => console.log(`UniGuide running on port ${PORT}`)))
   .catch((err) => { console.error("Database setup failed:", err); process.exit(1); });

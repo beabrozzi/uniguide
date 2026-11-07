@@ -9,39 +9,81 @@
   body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;max-width:720px;margin:0 auto;padding:40px 20px;line-height:1.6;color:#111827;border-top:6px solid #2563EB}
   h1{font-size:2rem;margin-bottom:4px;} h2{font-size:1.1rem;margin-top:28px;}
   .note{border-left:4px solid #2563EB;background:#E8F0FE;padding:10px 14px;font-size:.92rem}
+  table{border-collapse:collapse;width:100%;font-size:.92rem;margin:8px 0}
+  th,td{border:1px solid #E5E7EB;padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#F9FAFB}
   a{color:#1D4ED8}
 </style>
 </head>
 <body>
 <h1>Privacy notice</h1>
-<p><b>UniGuide prototype</b>, last updated November 2026</p>
-<p class="note">UniGuide is a student-built prototype, not an official university service.</p>
+<p><b>UniGuide</b>, last updated 7 November 2026</p>
+<p class="note">UniGuide is a student-built prototype. It is not an official university or NHS service and does not give medical advice. If you are in danger or need urgent help, call <b>999</b>, or call Samaritans free on <b>116 123</b>.</p>
 
-<h2>Without an account</h2>
-<p>You can use UniGuide without creating an account. Your answers stay in your browser and are not sent to or stored on our server.</p>
+<p>This notice explains what personal data UniGuide collects, why, and your rights under the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018.</p>
 
-<h2>If you create an account</h2>
-<p>If you create an account and agree to save your plan, we store:</p>
+<h2>1. Who we are</h2>
+<p>UniGuide is run by its two founders, Beatrice Brozzi and Mélusine Jurd de Girancourt, students at University College London. We decide how your data is used, which makes us the <b>data controller</b>.</p>
+
+<h2>2. We never store health data</h2>
+<p>Some questions ask about your mental health, physical health, GP registration, health or accessibility needs, allergies, diet and the student communities you're interested in. Your answers to these questions <b>never leave your browser</b>. They are used on your device to build your plan, are never sent to or stored on our server, and are gone when you close or reload the page.</p>
+<p>This means we do not store any special-category data, such as health, religion or sexual orientation. Checklist items that would reveal this kind of information (for example, registering with disability support) are not saved either.</p>
+
+<h2>3. Using UniGuide without an account</h2>
+<p>You can use UniGuide without an account. Your answers stay in your browser, and none of them are sent to our server.</p>
+
+<h2>4. What we collect, and why</h2>
+<table>
+  <tr><th>Data</th><th>Why we use it</th><th>Lawful basis (UK GDPR Art. 6)</th></tr>
+  <tr><td>Email address, and your password in hashed form (we never store or see the password itself)</td><td>To create your account and sign you in</td><td>Contract: providing the account you asked for</td></tr>
+  <tr><td>Your saved plan: university, UK or international status, immigration status, accommodation, area, personal circumstances (e.g. first in family, care-experienced), food budget, money, housing, course, career interests, schedule, how you're finding the social side, and the checklist items you've ticked off</td><td>To show you your plan again and save your progress</td><td>Consent: you choose to save, and we ask before saving anything</td></tr>
+  <tr><td>The date you gave consent</td><td>To record that you agreed</td><td>Legal obligation: showing that consent was given</td></tr>
+  <tr><td>Your IP address and basic request details</td><td>To keep the service secure, limit repeated sign-in attempts and fix errors</td><td>Legitimate interests: keeping the service and your account safe</td></tr>
+</table>
+<p>We use your data only for these purposes. We don't sell or share it, we don't use it for advertising or marketing, and we don't use it to profile you. Your plan is built by simple, fixed rules from your answers. It only suggests services and has no legal or similarly significant effect on you.</p>
+
+<h2>5. Who can see it</h2>
+<p>Only you. Every request to our server checks that you're signed in, and you can only read or change your own data. The founders do not look at individual users' data.</p>
+
+<h2>6. Who processes it for us</h2>
+<p>We use these service providers, who process data only on our instructions:</p>
 <ul>
-  <li>your email address, and your password in hashed form (we never store or see the password itself)</li>
-  <li>your university</li>
-  <li>your answers to the questions, which may include health information such as mental health, conditions, allergies and disability</li>
-  <li>which checklist items you've ticked off</li>
-  <li>the date you gave consent</li>
+  <li><b>Render</b>: hosts our website and server in Frankfurt, Germany (EU)</li>
+  <li><b>Supabase</b>: hosts our database in Frankfurt, Germany (EU)</li>
+  <li><b>Google Fonts</b>: provides the website's font. Your browser fetches it from Google, which receives your IP address. Google may process this outside the UK.</li>
 </ul>
-<p>We only store your answers after you explicitly agree. We use them for one purpose only: to show you your plan again and save your progress.</p>
+<p>Data stored in the EU is protected by UK "adequacy regulations", which recognise EU data protection law as equivalent to the UK's.</p>
 
-<h2>Who can see it</h2>
-<p>Only you. Every request to our server checks that you're signed in, and you can only read or change your own plan. We don't sell or share your data, and it isn't used for advertising.</p>
+<h2>7. How we keep it safe</h2>
+<ul>
+  <li>Passwords are hashed with bcrypt, so they can't be read.</li>
+  <li>Every connection is encrypted: your browser to our server (HTTPS), and our server to the database (SSL).</li>
+  <li>Sign-in uses a secure cookie that the page's scripts can't read.</li>
+  <li>Repeated sign-in attempts are rate-limited.</li>
+</ul>
 
-<h2>Where it's stored</h2>
-<p>Our server is hosted by Render (Frankfurt, EU) and our database by Supabase (Frankfurt, EU). All connections are encrypted: between your browser and our server (HTTPS), and between our server and the database (SSL).</p>
+<h2>8. Cookies</h2>
+<p>We use one cookie, <code>ug_session</code>, which keeps you signed in for up to 30 days. It is strictly necessary for your account to work, so we don't ask for cookie consent. We don't use analytics, advertising or tracking cookies.</p>
 
-<h2>Deleting your data</h2>
-<p>Sign in and press <b>Delete my data</b>. This permanently deletes your account, answers and progress straight away.</p>
+<h2>9. How long we keep it</h2>
+<ul>
+  <li><b>Account and saved plan</b>: until you delete your account, which you can do at any time.</li>
+  <li><b>Sign-in rate-limit records</b>: about 15 minutes.</li>
+  <li><b>Server logs</b>: kept by our hosting provider for a short period only, for security and fixing errors.</li>
+</ul>
 
-<h2>Contact</h2>
-<p>Questions about your data: [contact email]</p>
+<h2>10. Your rights</h2>
+<p>Under UK GDPR you have the right to:</p>
+<ul>
+  <li><b>access</b> your data: sign in and open <b>My account</b> to see your saved plan</li>
+  <li><b>correct</b> it: use <b>Change my answers</b>, or change your email in <b>My account</b></li>
+  <li><b>erase</b> it: press <b>Delete my data</b> in <b>My account</b>. This permanently deletes your account, saved answers and progress straight away</li>
+  <li><b>withdraw consent</b> at any time, by deleting your data. This doesn't affect anything we did before you withdrew</li>
+  <li><b>restrict</b> or <b>object to</b> how we use your data, and receive your data in a portable format (<b>data portability</b>)</li>
+</ul>
+
+<h2>11. Changes to this notice</h2>
+<p>If we change how we use your data, we will update this page and the date at the top. If you have saved a plan, we will ask for your consent again before any new use.</p>
 
 <p><a href="./">Back to UniGuide</a></p>
 </body>

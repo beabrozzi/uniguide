@@ -215,7 +215,7 @@ function form(){
         <button class="btn btn-danger" id="crisisGo" type="button">See urgent support now →</button>
       </div>`:""}
     </div>`; }).join("")}
-    <p class="privnote">🔒 Your answers are used to personalise your plan. You can explore without creating an account, and we'll always ask for your consent before saving anything.</p>
+    <p class="privnote">🔒 Your answers are used to personalise your plan. You can explore without creating an account, and we'll always ask for your consent before saving anything. Health answers are never saved.</p>
     <div class="nav">
       <button class="btn btn-g" id="back">← ${state.step===0?"Home":"Back"}</button>
       <button class="btn btn-p" id="next">${state.step===STEPS.length-1?"Show my plan →":"Next →"}</button>
