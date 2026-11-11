@@ -1,5 +1,5 @@
 /* ───────────────────────── ACCOUNTS ─────────────────────────
-   Talks to the UniMeadow server's API (backend/server.js):
+   Talks to the UniOwl server's API (backend/server.js):
    sign up / sign in, consent, saved plans, the "My account" page
    (view or change your plan, change email, change password), sign out and data deletion.
    Sessions use a secure, httpOnly cookie set by the server.

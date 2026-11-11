@@ -1,4 +1,4 @@
--- UniMeadow database schema (PostgreSQL). Runs automatically when the server starts.
+-- UniOwl database schema (PostgreSQL). Runs automatically when the server starts.
 
 -- Accounts: email + hashed password (never the password itself)
 CREATE TABLE IF NOT EXISTS users (
