@@ -1,8 +1,8 @@
-# UniOwl
+# Owl
 
 **Find your place, your way.** The centralised transition platform for new university students.
 
-Moving from school to university is when students first manage their own mental health, physical health, food and money on their own. The support already exists, but it's scattered across universities, the NHS and charities. UniOwl asks a student a few questions and turns all of that into one personalised plan, ranked by urgency, with step-by-step guides.
+Moving from school to university is when students first manage their own mental health, physical health, food and money on their own. The support already exists, but it's scattered across universities, the NHS and charities. Owl asks a student a few questions and turns all of that into one personalised plan, ranked by urgency, with step-by-step guides.
 
 ## Architecture
 

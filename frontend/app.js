@@ -177,7 +177,7 @@ function home(){
     <button class="btn btn-p" id="start" style="width:100%;margin-top:20px">Create my personalised plan →</button>
     <div class="explore">Just exploring? <button class="linkbtn" id="exToggle" aria-expanded="${state.showEx?"true":"false"}">View an example plan →</button></div>
     ${state.showEx?`<div class="examples">
-      <p class="hint">Pick an example student to see the plan UniOwl would build for them.</p>
+      <p class="hint">Pick an example student to see the plan Owl would build for them.</p>
       <div class="personas">${PERSONAS.map((p,i)=>`<button class="persona" data-p="${i}"><b>${esc(p.name.split(",")[0])}</b><small>${esc(uniInfo(p.a).ucl?"UCL":p.a.uni)}</small><span class="ptags">${(p.tags||[]).map(([c,l])=>`<span class="tag t-${c}">${l}</span>`).join("")}</span></button>`).join("")}</div>
     </div>`:""}
     <p class="foot">You can explore without an account. If you choose to save your plan, we'll ask for your consent first. <a href="privacy.html" target="_blank" rel="noopener">Privacy notice</a></p>
@@ -287,7 +287,7 @@ function results(keep){
       <button class="btn btn-p" id="copy">Copy my plan</button>
       <button class="btn btn-g" id="home">Try another student</button>
     </div>
-    <p class="foot">UniOwl prototype. Not an official university service and not medical advice. Details were checked against official pages in November 2026; always confirm on the linked page.</p>
+    <p class="foot">Owl prototype. Not an official university service and not medical advice. Details were checked against official pages in November 2026; always confirm on the linked page.</p>
   </div>`;
   document.getElementById("vu").onclick=()=>{ state.mode="urgency"; results(true); };
   document.getElementById("va").onclick=()=>{ state.mode="area"; results(true); };
@@ -301,7 +301,7 @@ function results(keep){
   document.getElementById("home").onclick=()=>{ state={view:"home",step:0,a:{},mode:state.mode,showEx:true}; render(); };
   document.getElementById("edit").onclick=()=>{ state.view="pick"; render(); };
   document.getElementById("copy").onclick=async()=>{
-    const txt=["My UniOwl plan",""].concat(tiers.flatMap(([t,h])=>{ const it=p.filter(x=>x.tier===t); return it.length?[h.toUpperCase(),...it.map(x=>{ const r=svc(x.id,a); return `• ${fill(r.title,a)} (${r.meta.map(m=>fill(m[1],a)).join(", ")}) ${linkFor(r,a)}`+(r.steps||[]).map((t,i)=>`\n    ${i+1}. ${fill(t,a)}`).join(""); }),""]:[]; })).join("\n");
+    const txt=["My Owl plan",""].concat(tiers.flatMap(([t,h])=>{ const it=p.filter(x=>x.tier===t); return it.length?[h.toUpperCase(),...it.map(x=>{ const r=svc(x.id,a); return `• ${fill(r.title,a)} (${r.meta.map(m=>fill(m[1],a)).join(", ")}) ${linkFor(r,a)}`+(r.steps||[]).map((t,i)=>`\n    ${i+1}. ${fill(t,a)}`).join(""); }),""]:[]; })).join("\n");
     try{ await navigator.clipboard.writeText(txt); toast("Plan copied"); }catch(e){ toast("Couldn't copy here. Select the text instead"); }
   };
   if(!keep) window.scrollTo(0,0);

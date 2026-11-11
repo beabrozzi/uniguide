@@ -1,4 +1,4 @@
-/* UniOwl server: serves the website and the API.
+/* Owl server: serves the website and the API.
 
    Frontend  →  ../frontend (HTML, CSS, JS), served by this server
    Backend   →  this file (Express REST API on Render)
@@ -248,5 +248,5 @@ app.use((req, res) => res.sendFile(path.join(FRONTEND, "index.html")));
 /* ---------- Start ---------- */
 db.migrate()
   .then(() => scrubSavedPlans())
-  .then(() => app.listen(PORT, () => console.log(`UniOwl running on port ${PORT}`)))
+  .then(() => app.listen(PORT, () => console.log(`Owl running on port ${PORT}`)))
   .catch((err) => { console.error("Database setup failed:", err); process.exit(1); });
